@@ -1,26 +1,140 @@
 @import "tailwindcss";
 
+/*
+  Paleta "Rancho el Capricho" — estética western / cuero / atardecer en el rancho.
+  Cambia estos valores si quieres ajustar la identidad visual.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #1a1410;      /* madera quemada / noche en el rancho */
+  --foreground: #f3e9d8;      /* crema pergamino */
+  --cuero: #8b4513;           /* cuero / silla de montar */
+  --cuero-claro: #c1873b;     /* dorado tostado */
+  --polvo: #d9c2a3;           /* tierra seca */
+  --sangre: #7a1f1f;          /* rojo cantina */
+  --atardecer: #e07b39;       /* naranja atardecer */
+  --verde-pasto: #4a5d3a;     /* pasto / mezquite */
+  --crema: #f3e9d8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cuero: var(--cuero);
+  --color-cuero-claro: var(--cuero-claro);
+  --color-polvo: var(--polvo);
+  --color-sangre: var(--sangre);
+  --color-atardecer: var(--atardecer);
+  --color-verde-pasto: var(--verde-pasto);
+  --color-crema: var(--crema);
+  --font-display: var(--font-rye);
+  --font-rustico: var(--font-special-elite);
+  --font-sans: var(--font-oswald);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Textura de madera/tierra sutil de fondo */
+.bg-rancho {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse at top, rgba(224, 123, 57, 0.08), transparent 60%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.05) 0px,
+      rgba(0, 0, 0, 0.05) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+}
+
+/* Separador tipo cuerda / soga */
+.soga {
+  height: 6px;
+  width: 100%;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--cuero-claro) 0px,
+    var(--cuero-claro) 8px,
+    var(--cuero) 8px,
+    var(--cuero) 16px
+  );
+  border-radius: 999px;
+  opacity: 0.85;
+}
+
+/* Marco para los placeholders de fotos */
+.marco-foto {
+  position: relative;
+  overflow: hidden;
+  border: 3px solid var(--cuero);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(139, 69, 19, 0.18) 0px,
+      rgba(139, 69, 19, 0.18) 14px,
+      rgba(193, 135, 59, 0.12) 14px,
+      rgba(193, 135, 59, 0.12) 28px
+    );
+}
+
+/* Animación suave al aparecer */
+@keyframes subir {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.aparecer {
+  animation: subir 0.8s ease both;
+}
+
+/* Botón estilo "branding" */
+.btn-rancho {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--atardecer);
+  color: #1a1410;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.9rem 2rem;
+  border-radius: 4px;
+  border: 2px solid #1a1410;
+  box-shadow: 4px 4px 0 var(--cuero);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+  cursor: pointer;
+}
+.btn-rancho:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--cuero);
+  background: var(--cuero-claro);
+}
+.btn-rancho:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--cuero);
+}
+
+.btn-fantasma {
+  background: transparent;
+  color: var(--crema);
+  border: 2px solid var(--cuero-claro);
+  box-shadow: none;
+}
+.btn-fantasma:hover {
+  background: rgba(193, 135, 59, 0.15);
+  color: var(--crema);
 }

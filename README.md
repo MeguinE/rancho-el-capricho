@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🤠 Rancho el Capricho
 
-## Getting Started
+Landing page para la renta de caballos para eventos sociales (bodas, XV años,
+cabalgatas, sesiones de fotos). Hecha con **Next.js + Tailwind CSS** y conectada
+a **Supabase** para recibir las solicitudes de reserva.
 
-First, run the development server:
+---
+
+## 🚀 Correr en tu computadora
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> Sin configurar Supabase el formulario funciona en **modo demo** (no guarda nada,
+> solo simula el envío). Conéctalo cuando quieras recibir reservas de verdad.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🖼️ Cómo agregar tus fotos
 
-To learn more about Next.js, take a look at the following resources:
+1. Guarda tus imágenes dentro de la carpeta **`public/img/`**
+   (ej. `public/img/relampago.jpg`).
+2. **Caballos:** abre [`lib/data.ts`](lib/data.ts) y en cada caballo escribe la
+   ruta en `img`, por ejemplo:
+   ```ts
+   { nombre: "Relámpago", raza: "Azteca", descripcion: "...", img: "/img/relampago.jpg" }
+   ```
+3. **Galería y foto del rancho:** en [`app/page.tsx`](app/page.tsx) busca los
+   `<FotoPlaceholder ... />` y agrégales la prop `src="/img/tu-foto.jpg"`.
+4. **Hero (portada):** edita la sección `HERO` en `app/page.tsx`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Mientras no pongas una foto, se muestra un marco placeholder con 🐴.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+También puedes cambiar textos, nombres de caballos, servicios y datos de
+contacto (teléfono, WhatsApp, redes) en [`lib/data.ts`](lib/data.ts).
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🗄️ Conectar Supabase (back-end y base de datos)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Crea un proyecto gratis en [supabase.com](https://supabase.com).
+2. Ve a **SQL Editor → New query**, pega el contenido de
+   [`supabase/schema.sql`](supabase/schema.sql) y dale **Run**.
+   Esto crea la tabla `reservas` con la seguridad correcta.
+3. Ve a **Project Settings → API** y copia:
+   - `Project URL`
+   - `anon public` key
+4. En la raíz del proyecto crea un archivo **`.env.local`** (puedes copiar
+   `.env.local.example`) con:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-clave-anon-publica
+   ```
+5. Reinicia `npm run dev`. ¡Listo! Las reservas llegarán a la tabla `reservas`,
+   que puedes ver en Supabase → **Table Editor**.
+
+---
+
+## ☁️ Desplegar en Vercel
+
+1. Sube el proyecto a un repositorio de GitHub.
+2. Entra a [vercel.com](https://vercel.com) → **Add New → Project** e importa el repo.
+3. En **Environment Variables** agrega las dos variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. **Deploy**. Vercel detecta Next.js automáticamente.
+
+---
+
+## 📁 Estructura
+
+```
+app/
+  layout.tsx          Fuentes (Rye, Special Elite, Oswald) y metadatos
+  page.tsx            La landing completa por secciones
+  globals.css         Paleta de colores y estilos western
+components/
+  Navbar.tsx          Menú fijo y responsivo
+  FotoPlaceholder.tsx Marco de foto / placeholder
+  FormReserva.tsx     Formulario que guarda en Supabase
+lib/
+  data.ts             Contenido editable (caballos, servicios, contacto)
+  supabase.ts         Cliente de Supabase
+supabase/
+  schema.sql          Script para crear la base de datos
+```
