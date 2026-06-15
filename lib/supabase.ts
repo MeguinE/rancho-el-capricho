@@ -11,7 +11,10 @@ import { createClient } from "@supabase/supabase-js";
   "modo demo" (no se cae, solo no guarda en la base de datos).
 */
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Soporta el formato nuevo (publishable) y el antiguo (anon).
+const anonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export const supabaseConfigurado = Boolean(url && anonKey);
 

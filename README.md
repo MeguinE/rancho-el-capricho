@@ -1,8 +1,9 @@
 # 🤠 Rancho el Capricho
 
 Landing page para la renta de caballos para eventos sociales (bodas, XV años,
-cabalgatas, sesiones de fotos). Hecha con **Next.js + Tailwind CSS** y conectada
-a **Supabase** para recibir las solicitudes de reserva.
+cabalgatas, sesiones de fotos). Hecha con **Next.js + Tailwind CSS**, conectada a
+**Supabase** (reservas, base de datos y almacenamiento de imágenes) e incluye un
+**panel de administración** en `/admin`.
 
 ---
 
@@ -15,48 +16,60 @@ npm run dev
 
 Abre [http://localhost:3000](http://localhost:3000).
 
-> Sin configurar Supabase el formulario funciona en **modo demo** (no guarda nada,
-> solo simula el envío). Conéctalo cuando quieras recibir reservas de verdad.
+> Sin configurar Supabase, el sitio se ve completo con contenido por defecto y el
+> formulario funciona en **modo demo** (no guarda nada). Conéctalo para recibir
+> reservas y poder editar desde el panel.
 
 ---
 
-## 🖼️ Cómo agregar tus fotos
-
-1. Guarda tus imágenes dentro de la carpeta **`public/img/`**
-   (ej. `public/img/relampago.jpg`).
-2. **Caballos:** abre [`lib/data.ts`](lib/data.ts) y en cada caballo escribe la
-   ruta en `img`, por ejemplo:
-   ```ts
-   { nombre: "Relámpago", raza: "Azteca", descripcion: "...", img: "/img/relampago.jpg" }
-   ```
-3. **Galería y foto del rancho:** en [`app/page.tsx`](app/page.tsx) busca los
-   `<FotoPlaceholder ... />` y agrégales la prop `src="/img/tu-foto.jpg"`.
-4. **Hero (portada):** edita la sección `HERO` en `app/page.tsx`.
-
-Mientras no pongas una foto, se muestra un marco placeholder con 🐴.
-
-También puedes cambiar textos, nombres de caballos, servicios y datos de
-contacto (teléfono, WhatsApp, redes) en [`lib/data.ts`](lib/data.ts).
-
----
-
-## 🗄️ Conectar Supabase (back-end y base de datos)
+## 🗄️ Conectar Supabase
 
 1. Crea un proyecto gratis en [supabase.com](https://supabase.com).
-2. Ve a **SQL Editor → New query**, pega el contenido de
+2. Ve a **SQL Editor → New query**, pega TODO el contenido de
    [`supabase/schema.sql`](supabase/schema.sql) y dale **Run**.
-   Esto crea la tabla `reservas` con la seguridad correcta.
-3. Ve a **Project Settings → API** y copia:
-   - `Project URL`
-   - `anon public` key
-4. En la raíz del proyecto crea un archivo **`.env.local`** (puedes copiar
-   `.env.local.example`) con:
+   Esto crea las tablas (`reservas`, `caballos`, `galeria`, `config`), carga el
+   contenido inicial y crea el bucket de imágenes `imagenes`.
+3. Ve a **Project Settings → API** y copia: `Project URL`, la clave
+   `anon public` y la clave `service_role` (secreta).
+4. Copia `.env.local.example` a **`.env.local`** y rellena los valores:
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-clave-anon-publica
+   SUPABASE_SERVICE_ROLE_KEY=tu-clave-service-role
+   ADMIN_PASSWORD=la-contraseña-de-tu-panel
+   ADMIN_SESSION_SECRET=cadena-larga-y-aleatoria
    ```
-5. Reinicia `npm run dev`. ¡Listo! Las reservas llegarán a la tabla `reservas`,
-   que puedes ver en Supabase → **Table Editor**.
+   Genera el `ADMIN_SESSION_SECRET` con:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+5. Reinicia `npm run dev`.
+
+> ⚠️ La clave `service_role` y `ADMIN_PASSWORD` son **secretas**: nunca las subas
+> a git ni las compartas. El archivo `.env.local` ya está ignorado.
+
+---
+
+## 🔐 Panel de administración (`/admin`)
+
+Entra en [http://localhost:3000/admin](http://localhost:3000/admin) con la
+contraseña que pusiste en `ADMIN_PASSWORD`. Desde ahí puedes:
+
+- **Reservas** — ver las solicitudes del formulario, marcarlas como
+  *contactada* / *cerrada*, escribir por WhatsApp/correo y eliminarlas.
+- **Caballos** — editar nombre, raza, temperamento, descripción y **foto** de
+  cada caballo.
+- **Galería** — subir y eliminar las fotos del mosaico de eventos.
+- **Logo** — subir el logo del sitio (o quitarlo para usar el por defecto).
+
+Al reemplazar una foto, la anterior se borra del Storage automáticamente para no
+acumular archivos.
+
+### ¿Qué es editable y qué no?
+
+Editable desde el panel: **reservas, caballos, galería y logo**. El resto del
+contenido (hero, servicios, testimonios, textos, datos de contacto) está en
+[`lib/data.ts`](lib/data.ts) y se cambia ahí.
 
 ---
 
@@ -64,9 +77,9 @@ contacto (teléfono, WhatsApp, redes) en [`lib/data.ts`](lib/data.ts).
 
 1. Sube el proyecto a un repositorio de GitHub.
 2. Entra a [vercel.com](https://vercel.com) → **Add New → Project** e importa el repo.
-3. En **Environment Variables** agrega las dos variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. En **Environment Variables** agrega las **cinco** variables del `.env.local`
+   (las dos `NEXT_PUBLIC_*`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD` y
+   `ADMIN_SESSION_SECRET`).
 4. **Deploy**. Vercel detecta Next.js automáticamente.
 
 ---
@@ -75,16 +88,22 @@ contacto (teléfono, WhatsApp, redes) en [`lib/data.ts`](lib/data.ts).
 
 ```
 app/
-  layout.tsx          Fuentes (Rye, Special Elite, Oswald) y metadatos
-  page.tsx            La landing completa por secciones
-  globals.css         Paleta de colores y estilos western
+  page.tsx                  Landing (lee caballos/galería/logo de Supabase)
+  layout.tsx                Fuentes y metadatos
+  globals.css               Paleta y estilos western + animaciones
+  admin/
+    login/page.tsx          Acceso con contraseña
+    acciones.ts             Server Actions (login, CRUD, subida de imágenes)
+    (panel)/                Panel protegido: inicio, reservas, caballos, galería
 components/
-  Navbar.tsx          Menú fijo y responsivo
-  FotoPlaceholder.tsx Marco de foto / placeholder
-  FormReserva.tsx     Formulario que guarda en Supabase
+  Navbar, Marquee, Polvo, Contador, Reveal, Icono, FotoPlaceholder, FormReserva
+  admin/                    Navegación y botones del panel
 lib/
-  data.ts             Contenido editable (caballos, servicios, contacto)
-  supabase.ts         Cliente de Supabase
+  data.ts                   Contenido por defecto / no editable desde el panel
+  supabase.ts               Cliente público (navegador)
+  supabaseAdmin.ts          Cliente service_role (solo servidor)
+  contenido.ts              Lee contenido editable con respaldo a data.ts
+  auth.ts                   Sesión del admin (cookie firmada)
 supabase/
-  schema.sql          Script para crear la base de datos
+  schema.sql                Script para crear toda la base de datos
 ```

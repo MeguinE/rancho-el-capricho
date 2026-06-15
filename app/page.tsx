@@ -1,74 +1,123 @@
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import FotoPlaceholder from "@/components/FotoPlaceholder";
 import FormReserva from "@/components/FormReserva";
-import { caballos, servicios, contacto } from "@/lib/data";
+import Reveal from "@/components/Reveal";
+import Icono from "@/components/Icono";
+import Marquee from "@/components/Marquee";
+import Contador from "@/components/Contador";
+import Polvo from "@/components/Polvo";
+import {
+  servicios,
+  pasos,
+  testimonios,
+  contacto,
+  fotos,
+  cintaItems,
+} from "@/lib/data";
+import {
+  obtenerCaballos,
+  obtenerGaleria,
+  obtenerLogo,
+} from "@/lib/contenido";
 
-export default function Home() {
+export default async function Home() {
+  const [caballos, galeria, logoSubido] = await Promise.all([
+    obtenerCaballos(),
+    obtenerGaleria(),
+    obtenerLogo(),
+  ]);
+  // Usa el logo subido desde /admin; si no hay, el archivo /public/logo.png
+  const logoUrl = logoSubido ?? "/logo.png";
+
   return (
     <>
-      <Navbar />
+      <Navbar logoUrl={logoUrl} />
 
       {/* ====================== HERO ====================== */}
       <section
         id="inicio"
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        className="relative min-h-[100svh] flex items-center justify-center overflow-hidden"
       >
-        {/* Fondo: reemplaza por una foto poniendo una imagen en /public/img/hero.jpg
-            y descomenta el <Image> de abajo. Por ahora hay un degradado de atardecer. */}
+        {/* Foto de fondo con zoom lento (Ken Burns). Reemplázala poniendo tu
+            imagen en /public/img y cambiando "fotos.hero" en lib/data.ts */}
+        <div className="absolute inset-0 ken-burns">
+          <Image
+            src={fotos.hero}
+            alt="Caballo galopando en el rancho"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        </div>
+        {/* Capas de oscurecido para legibilidad */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1a1410]/85 via-[#1a1410]/45 to-[#1a1410]" />
+        <div className="absolute inset-0 vineta" />
+
+        {/* Polvo dorado flotando */}
+        <Polvo />
+
+        {/* Silueta de cerros al pie */}
         <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, #2a1c12 0%, #5a2f15 35%, #b85c2a 70%, #e07b39 100%)",
-          }}
-        />
-        {/* Silueta de cerro/pasto */}
-        <div
-          className="absolute bottom-0 inset-x-0 h-40 bg-[#1a1410]"
+          className="absolute bottom-0 inset-x-0 h-32 bg-[#1a1410] z-[6]"
           style={{
             clipPath:
               "polygon(0 60%, 12% 45%, 28% 58%, 45% 38%, 62% 55%, 80% 40%, 100% 58%, 100% 100%, 0 100%)",
           }}
         />
-        <div className="absolute inset-0 bg-black/25" />
 
-        <div className="relative z-10 text-center px-5 max-w-4xl aparecer">
-          <p className="font-[family-name:var(--font-rustico)] text-crema/90 tracking-[0.3em] uppercase text-sm sm:text-base mb-4">
-            Desde el corazón del campo
-          </p>
-          <h1 className="font-[family-name:var(--font-display)] text-cuero-claro text-5xl sm:text-7xl lg:text-8xl leading-none drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]">
-            Rancho el Capricho
+        <div className="relative z-10 text-center px-5 max-w-5xl">
+          <div className="placa mx-auto mb-7 hero-in" style={{ animationDelay: "0.1s" }}>
+            <span className="text-atardecer">★</span>
+            <span className="font-[family-name:var(--font-rustico)] text-crema/90 tracking-[0.25em] uppercase text-xs">
+              Renta de caballos para eventos
+            </span>
+          </div>
+          <h1
+            className="hero-in font-[family-name:var(--font-display)] text-7xl sm:text-8xl lg:text-9xl leading-[0.88] texto-fuego"
+            style={{ animationDelay: "0.25s" }}
+          >
+            Rancho<br />el Capricho
           </h1>
-          <p className="mt-6 text-crema text-lg sm:text-2xl max-w-2xl mx-auto">
+          <p
+            className="hero-in mt-7 text-crema text-lg sm:text-2xl max-w-2xl mx-auto leading-relaxed"
+            style={{ animationDelay: "0.5s" }}
+          >
             Caballos majestuosos para que tu evento sea legendario. Bodas, XV
             años, cabalgatas y sesiones de fotos con auténtico sabor vaquero.
           </p>
-          <div className="mt-9 flex flex-col sm:flex-row gap-4 justify-center">
+          <div
+            className="hero-in mt-9 flex flex-col sm:flex-row gap-4 justify-center"
+            style={{ animationDelay: "0.75s" }}
+          >
             <a href="#reservar" className="btn-rancho">
-              🐎 Reservar caballos
+              Reservar caballos
             </a>
             <a href="#caballos" className="btn-rancho btn-fantasma">
-              Conoce nuestros caballos
+              Conoce a los caballos
             </a>
           </div>
         </div>
 
         <a
-          href="#caballos"
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-crema/70 text-sm animate-bounce z-10"
+          href="#historia"
+          aria-label="Bajar"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 text-crema/60 text-sm animate-bounce z-10"
         >
-          ▼ Desliza
+          ▼
         </a>
       </section>
 
+      {/* ====================== CINTA EN MOVIMIENTO ====================== */}
+      <Marquee items={cintaItems} />
+
       {/* ====================== SOBRE EL RANCHO ====================== */}
-      <section className="py-20 sm:py-28 px-5">
+      <section id="historia" className="py-20 sm:py-28 px-5">
         <div className="mx-auto max-w-6xl grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <p className="text-atardecer uppercase tracking-[0.25em] text-sm mb-3">
-              Nuestra historia
-            </p>
-            <h2 className="font-[family-name:var(--font-display)] text-cuero-claro text-4xl sm:text-5xl mb-6">
+          <Reveal>
+            <span className="kicker kicker-izq mb-3">Nuestra historia</span>
+            <h2 className="titulo-display text-4xl sm:text-5xl mt-3 mb-6">
               Tradición vaquera, momentos inolvidables
             </h2>
             <p className="text-crema/85 text-lg leading-relaxed mb-4">
@@ -84,16 +133,16 @@ export default function Home() {
             </p>
             <div className="mt-8 grid grid-cols-3 gap-4 text-center">
               {[
-                { n: "+10", l: "Años de experiencia" },
-                { n: "+15", l: "Caballos entrenados" },
-                { n: "+200", l: "Eventos realizados" },
+                { n: 10, l: "Años de experiencia" },
+                { n: 15, l: "Caballos entrenados" },
+                { n: 200, l: "Eventos realizados" },
               ].map((s) => (
                 <div
                   key={s.l}
                   className="bg-[#0f0b08]/50 border border-cuero/40 rounded-lg p-4"
                 >
-                  <div className="font-[family-name:var(--font-display)] text-2xl text-atardecer">
-                    {s.n}
+                  <div className="titulo-display text-3xl text-atardecer">
+                    <Contador hasta={s.n} prefijo="+" />
                   </div>
                   <div className="text-crema/60 text-xs uppercase tracking-wider mt-1">
                     {s.l}
@@ -101,12 +150,17 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </div>
-          <FotoPlaceholder
-            alt="Rancho el Capricho"
-            etiqueta="Foto del rancho / panorámica"
-            className="aspect-[4/5] rounded-lg"
-          />
+          </Reveal>
+          <Reveal delay={150}>
+            <FotoPlaceholder
+              src={fotos.historia}
+              alt="El rancho"
+              etiqueta="Foto del rancho / panorámica"
+              className="aspect-[4/5] rounded-xl"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              zoom
+            />
+          </Reveal>
         </div>
       </section>
 
@@ -117,44 +171,64 @@ export default function Home() {
       {/* ====================== CABALLOS ====================== */}
       <section id="caballos" className="py-20 sm:py-28 px-5">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-14">
-            <p className="text-atardecer uppercase tracking-[0.25em] text-sm mb-3">
-              Las estrellas del rancho
-            </p>
-            <h2 className="font-[family-name:var(--font-display)] text-cuero-claro text-4xl sm:text-5xl">
+          <Reveal className="text-center mb-14">
+            <span className="kicker mb-3">Las estrellas del rancho</span>
+            <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
               Nuestros Caballos
             </h2>
-          </div>
+          </Reveal>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
-            {caballos.map((c) => (
-              <article
-                key={c.nombre}
-                className="bg-[#0f0b08]/50 border border-cuero/40 rounded-lg overflow-hidden hover:border-atardecer transition-colors group"
-              >
-                <FotoPlaceholder
-                  src={c.img}
-                  alt={c.nombre}
-                  etiqueta={`Foto de ${c.nombre}`}
-                  className="aspect-[4/3]"
-                />
-                <div className="p-5">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <h3 className="font-[family-name:var(--font-display)] text-2xl text-cuero-claro">
-                      {c.nombre}
-                    </h3>
-                    <span className="text-xs uppercase tracking-wider text-atardecer">
-                      {c.raza}
+            {caballos.map((c, i) => (
+              <Reveal key={c.nombre} delay={i * 100}>
+                <article className="card-rancho overflow-hidden h-full">
+                  <div className="relative">
+                    <FotoPlaceholder
+                      src={c.img}
+                      alt={c.nombre}
+                      etiqueta={`Foto de ${c.nombre}`}
+                      className="aspect-[3/4]"
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      zoom
+                      velo
+                    />
+                    <span className="absolute top-3 left-3 placa text-[11px] uppercase tracking-wider text-cuero-claro">
+                      {c.temperamento}
                     </span>
+                    <div className="absolute bottom-0 inset-x-0 p-4">
+                      <h3 className="titulo-display text-2xl leading-none">
+                        {c.nombre}
+                      </h3>
+                      <span className="text-xs uppercase tracking-widest text-atardecer">
+                        {c.raza}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-crema/70 text-sm mt-2 leading-relaxed">
+                  <p className="text-crema/70 text-sm p-4 leading-relaxed">
                     {c.descripcion}
                   </p>
-                </div>
-              </article>
+                </article>
+              </Reveal>
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ====================== FRASE CON PARALLAX ====================== */}
+      <section
+        className="relative parallax py-32 sm:py-44 px-5"
+        style={{ backgroundImage: `url(${fotos.cita})` }}
+      >
+        <div className="absolute inset-0 bg-[#1a1410]/80" />
+        <div className="absolute inset-0 vineta" />
+        <Reveal className="relative z-10 mx-auto max-w-4xl text-center">
+          <span className="text-atardecer text-4xl">“</span>
+          <p className="titulo-display text-3xl sm:text-5xl leading-tight mt-2">
+            El caballo es el único compañero que convierte
+            <span className="texto-fuego"> un momento en leyenda.</span>
+          </p>
+          <div className="soga max-w-xs mx-auto mt-8" />
+        </Reveal>
       </section>
 
       {/* ====================== SERVICIOS / EVENTOS ====================== */}
@@ -163,73 +237,131 @@ export default function Home() {
         className="py-20 sm:py-28 px-5 bg-[#0f0b08]/40 border-y border-cuero/30"
       >
         <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-14">
-            <p className="text-atardecer uppercase tracking-[0.25em] text-sm mb-3">
-              Lo que ofrecemos
-            </p>
-            <h2 className="font-[family-name:var(--font-display)] text-cuero-claro text-4xl sm:text-5xl">
+          <Reveal className="text-center mb-14">
+            <span className="kicker mb-3">Lo que ofrecemos</span>
+            <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
               Eventos & Servicios
             </h2>
-          </div>
+          </Reveal>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
-            {servicios.map((s) => (
-              <div
-                key={s.titulo}
-                className="text-center p-7 rounded-lg border border-cuero/40 bg-[#1a1410]/60 hover:-translate-y-1 transition-transform"
-              >
-                <div className="text-5xl mb-4">{s.icono}</div>
-                <h3 className="font-[family-name:var(--font-display)] text-xl text-cuero-claro mb-2">
-                  {s.titulo}
-                </h3>
-                <p className="text-crema/70 text-sm leading-relaxed">
-                  {s.descripcion}
-                </p>
-              </div>
+            {servicios.map((s, i) => (
+              <Reveal key={s.titulo} delay={i * 100}>
+                <div className="card-rancho text-center p-7 h-full">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-cuero-claro/50 bg-[#1a1410]/60 text-atardecer mb-5">
+                    <Icono name={s.icono} />
+                  </div>
+                  <h3 className="titulo-display text-xl mb-2">{s.titulo}</h3>
+                  <p className="text-crema/70 text-sm leading-relaxed">
+                    {s.descripcion}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ====================== CÓMO FUNCIONA ====================== */}
+      <section className="py-20 sm:py-28 px-5">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center mb-14">
+            <span className="kicker mb-3">Así de fácil</span>
+            <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
+              Cómo funciona
+            </h2>
+          </Reveal>
+
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            {pasos.map((p, i) => (
+              <Reveal key={p.n} delay={i * 120}>
+                <div className="text-center px-4">
+                  <div className="titulo-display text-6xl text-cuero/70 mb-3">
+                    {p.n}
+                  </div>
+                  <h3 className="titulo-display text-2xl mb-3">{p.titulo}</h3>
+                  <p className="text-crema/70 leading-relaxed">
+                    {p.descripcion}
+                  </p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* ====================== GALERÍA ====================== */}
-      <section id="galeria" className="py-20 sm:py-28 px-5">
+      <section
+        id="galeria"
+        className="py-20 sm:py-28 px-5 bg-[#0f0b08]/40 border-y border-cuero/30"
+      >
         <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-14">
-            <p className="text-atardecer uppercase tracking-[0.25em] text-sm mb-3">
-              Momentos en el rancho
-            </p>
-            <h2 className="font-[family-name:var(--font-display)] text-cuero-claro text-4xl sm:text-5xl">
-              Galería
-            </h2>
+          <Reveal className="text-center mb-14">
+            <span className="kicker mb-3">Momentos en el rancho</span>
+            <h2 className="titulo-display text-4xl sm:text-5xl mt-3">Galería</h2>
             <p className="text-crema/60 mt-3 max-w-xl mx-auto">
-              Aquí van tus mejores fotos de eventos. Sustituye los marcos
-              poniendo imágenes en{" "}
-              <code className="text-cuero-claro">/public/img</code>.
+              Aquí van tus mejores fotos de eventos. Sustitúyelas poniendo
+              imágenes en{" "}
+              <code className="text-cuero-claro">/public/img</code> y editando{" "}
+              <code className="text-cuero-claro">lib/data.ts</code>.
             </p>
-          </div>
+          </Reveal>
 
           {/* Mosaico tipo galería */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[180px]">
-            <FotoPlaceholder
-              alt="Galería 1"
-              etiqueta="Evento 1"
-              className="col-span-2 row-span-2 rounded-lg"
-            />
-            <FotoPlaceholder alt="Galería 2" etiqueta="Evento 2" className="rounded-lg" />
-            <FotoPlaceholder alt="Galería 3" etiqueta="Evento 3" className="rounded-lg" />
-            <FotoPlaceholder
-              alt="Galería 4"
-              etiqueta="Evento 4"
-              className="col-span-2 rounded-lg"
-            />
-            <FotoPlaceholder alt="Galería 5" etiqueta="Evento 5" className="rounded-lg" />
-            <FotoPlaceholder alt="Galería 6" etiqueta="Evento 6" className="rounded-lg" />
-            <FotoPlaceholder
-              alt="Galería 7"
-              etiqueta="Evento 7"
-              className="col-span-2 rounded-lg"
-            />
-            <FotoPlaceholder alt="Galería 8" etiqueta="Evento 8" className="rounded-lg" />
+            {galeria.map((g, i) => (
+              <Reveal
+                key={i}
+                delay={(i % 4) * 80}
+                className={`${
+                  g.span === "ancho"
+                    ? "col-span-2"
+                    : g.span === "alto"
+                    ? "row-span-2"
+                    : ""
+                }`}
+              >
+                <FotoPlaceholder
+                  src={g.img}
+                  alt={g.alt}
+                  etiqueta={`Evento ${i + 1}`}
+                  className="rounded-lg h-full w-full"
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  zoom
+                />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ====================== TESTIMONIOS ====================== */}
+      <section className="py-20 sm:py-28 px-5">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="text-center mb-14">
+            <span className="kicker mb-3">Lo que dicen de nosotros</span>
+            <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
+              Historias del rancho
+            </h2>
+          </Reveal>
+
+          <div className="grid md:grid-cols-3 gap-7">
+            {testimonios.map((t, i) => (
+              <Reveal key={t.autor} delay={i * 120}>
+                <figure className="card-rancho p-7 h-full flex flex-col">
+                  <div className="text-atardecer text-lg mb-3">★★★★★</div>
+                  <blockquote className="text-crema/85 leading-relaxed italic flex-1">
+                    “{t.texto}”
+                  </blockquote>
+                  <figcaption className="mt-5 pt-4 border-t border-cuero/30">
+                    <div className="titulo-display text-lg">{t.autor}</div>
+                    <div className="text-atardecer text-xs uppercase tracking-widest">
+                      {t.evento}
+                    </div>
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -240,39 +372,42 @@ export default function Home() {
         className="py-20 sm:py-28 px-5 bg-[#0f0b08]/40 border-y border-cuero/30"
       >
         <div className="mx-auto max-w-3xl">
-          <div className="text-center mb-10">
-            <p className="text-atardecer uppercase tracking-[0.25em] text-sm mb-3">
-              ¿Listo para tu evento?
-            </p>
-            <h2 className="font-[family-name:var(--font-display)] text-cuero-claro text-4xl sm:text-5xl">
+          <Reveal className="text-center mb-10">
+            <span className="kicker mb-3">¿Listo para tu evento?</span>
+            <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
               Reserva tus Caballos
             </h2>
             <p className="text-crema/70 mt-3">
               Déjanos tus datos y te contactamos para crear una experiencia a tu
               medida.
             </p>
-          </div>
+          </Reveal>
 
-          <div className="bg-[#1a1410]/70 border-2 border-cuero rounded-xl p-6 sm:p-9 shadow-2xl">
-            <FormReserva />
-          </div>
-
-          <div className="text-center mt-8 text-crema/70">
-            <p>O escríbenos directo:</p>
-            <div className="flex flex-wrap gap-4 justify-center mt-3">
-              <a
-                href={`https://wa.me/${contacto.whatsapp}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-rancho btn-fantasma"
-              >
-                💬 WhatsApp
-              </a>
-              <a href={`tel:${contacto.telefono}`} className="btn-rancho btn-fantasma">
-                📞 {contacto.telefono}
-              </a>
+          <Reveal delay={120}>
+            <div className="bg-[#1a1410]/70 border-2 border-cuero rounded-xl p-6 sm:p-9 shadow-2xl">
+              <FormReserva />
             </div>
-          </div>
+
+            <div className="text-center mt-8 text-crema/70">
+              <p>O escríbenos directo:</p>
+              <div className="flex flex-wrap gap-4 justify-center mt-3">
+                <a
+                  href={`https://wa.me/${contacto.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-rancho btn-fantasma"
+                >
+                  WhatsApp
+                </a>
+                <a
+                  href={`tel:${contacto.telefono}`}
+                  className="btn-rancho btn-fantasma"
+                >
+                  {contacto.telefono}
+                </a>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -280,9 +415,7 @@ export default function Home() {
       <footer className="bg-[#0f0b08] border-t border-cuero/40 py-12 px-5">
         <div className="mx-auto max-w-6xl grid sm:grid-cols-3 gap-8">
           <div>
-            <h3 className="font-[family-name:var(--font-display)] text-cuero-claro text-2xl mb-3">
-              Rancho el Capricho
-            </h3>
+            <h3 className="titulo-display text-2xl mb-3">Rancho el Capricho</h3>
             <p className="text-crema/60 text-sm leading-relaxed">
               Caballos para eventos sociales. Tradición, nobleza y momentos
               inolvidables.

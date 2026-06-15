@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Rye, Special_Elite, Oswald } from "next/font/google";
+import { Rye, Special_Elite, Oswald, Zilla_Slab } from "next/font/google";
 import "./globals.css";
 
 // Tipografías con carácter western
@@ -17,6 +17,13 @@ const specialElite = Special_Elite({
 
 const oswald = Oswald({
   variable: "--font-oswald",
+  subsets: ["latin"],
+});
+
+// Slab serif con carácter western pero legible (logo / navbar)
+const zillaSlab = Zilla_Slab({
+  variable: "--font-zilla",
+  weight: ["500", "600", "700"],
   subsets: ["latin"],
 });
 
@@ -40,9 +47,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${rye.variable} ${specialElite.variable} ${oswald.variable} h-full antialiased`}
+      className={`${rye.variable} ${specialElite.variable} ${oswald.variable} ${zillaSlab.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-rancho">{children}</body>
+      <body className="min-h-full flex flex-col bg-rancho grano">{children}</body>
     </html>
   );
 }
