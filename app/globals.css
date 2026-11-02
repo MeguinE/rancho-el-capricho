@@ -202,24 +202,6 @@
     filter: blur(14px);
   }
 
-  /* Franja de cerros: separa dos secciones con silueta de montaña */
-  .cerros {
-    height: 5rem;
-    background: var(--carbon);
-    clip-path: polygon(
-      0 62%,
-      11% 44%,
-      26% 58%,
-      42% 34%,
-      58% 54%,
-      74% 38%,
-      88% 56%,
-      100% 42%,
-      100% 100%,
-      0 100%
-    );
-  }
-
   /* ===== Tipografía ===== */
 
   .titulo-display {
@@ -845,6 +827,44 @@
     transform: none;
   }
 
+  /* ===== Botón flotante de volver arriba ===== */
+
+  .boton-arriba {
+    position: fixed;
+    right: 1.1rem;
+    bottom: 1.1rem;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    border: 1px solid rgba(193, 135, 59, 0.55);
+    background: rgba(12, 8, 6, 0.82);
+    backdrop-filter: blur(8px);
+    color: var(--cuero-claro);
+    box-shadow: var(--sombra-media);
+    transition:
+      background-color var(--rapido) var(--suave),
+      color var(--rapido) var(--suave),
+      scale var(--rapido) var(--rebote);
+  }
+  .boton-arriba:hover {
+    background: var(--atardecer);
+    color: var(--madera);
+    scale: 1.08;
+  }
+
+  /* ===== Pie de página ===== */
+
+  .enlace-pie {
+    color: rgba(243, 233, 216, 0.68);
+    transition: color var(--rapido) var(--suave);
+  }
+  .enlace-pie:hover {
+    color: var(--atardecer);
+  }
+
   /* ===== Polvo dorado flotante ===== */
 
   .polvo {
@@ -1064,6 +1084,32 @@
 .scrub-progreso {
   transform: scaleX(0);
   transform-origin: 0 50%;
+}
+
+/* El botón de volver arriba asoma solo cuando ya se ha bajado un poco. Lo hace
+   el propio CSS contra el scroll de la página, sin un listener en JavaScript.
+   `pointer-events` se anima como propiedad discreta, así que mientras está
+   invisible tampoco es pulsable. Donde no haya soporte se queda visible
+   siempre, que es un comportamiento aceptable para un atajo como este. */
+@supports (animation-timeline: scroll()) {
+  .boton-arriba {
+    animation: asomar-arriba linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 55vh 95vh;
+  }
+  @keyframes asomar-arriba {
+    0%,
+    1% {
+      opacity: 0;
+      translate: 0 1rem;
+      pointer-events: none;
+    }
+    100% {
+      opacity: 1;
+      translate: none;
+      pointer-events: auto;
+    }
+  }
 }
 
 /* Origen de las líneas que se dibujan. Sin soporte de animation-timeline se

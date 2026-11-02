@@ -48,6 +48,27 @@ export default function Icono({ name, className = "w-9 h-9" }: Props) {
           <path d="M18.5 14.3c1.7.5 2.5 1.1 2.5.7 0-.4-2-1-2-1" />
         </svg>
       );
+    case "instagram":
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="18" height="18" rx="5" />
+          <circle cx="12" cy="12" r="4" />
+          <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" />
+        </svg>
+      );
+    case "facebook":
+      return (
+        <svg {...common}>
+          <path d="M14.5 8.5h2.2V5.6h-2.4c-2.2 0-3.6 1.4-3.6 3.6v1.5H8.4v2.9h2.3V21h3v-7.4h2.3l.4-2.9h-2.7V9.4c0-.6.3-.9.8-.9Z" />
+        </svg>
+      );
+    case "whatsapp":
+      return (
+        <svg {...common}>
+          <path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.3A8.5 8.5 0 1 1 20.5 11.6Z" />
+          <path d="M8.9 9.1c0 3 2.3 5.3 5.3 5.3.5 0 1-.4 1-.9l-.1-.8-1.7-.5-.8.8c-1-.5-1.8-1.3-2.2-2.3l.8-.8-.5-1.7-.8-.1c-.5 0-1 .5-1 1Z" />
+        </svg>
+      );
     default:
       return null;
   }
