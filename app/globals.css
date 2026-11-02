@@ -495,6 +495,29 @@
     opacity: 1;
   }
 
+  /* Destello diagonal que barre la tarjeta al pasar el cursor */
+  .brillo {
+    position: relative;
+    overflow: hidden;
+  }
+  .brillo::after {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    pointer-events: none;
+    background: linear-gradient(
+      105deg,
+      transparent 42%,
+      rgba(255, 240, 214, 0.22) 50%,
+      transparent 58%
+    );
+    transform: translateX(-100%);
+    transition: transform 900ms var(--salida);
+  }
+  .grupo-tarjeta:hover .brillo::after {
+    transform: translateX(100%);
+  }
+
   /* Marco de foto estilo cuero */
   .marco-foto {
     position: relative;
@@ -876,7 +899,6 @@
   --retardo: 0ms;
   --dur: var(--lento);
   opacity: 0;
-  will-change: transform, opacity;
 }
 
 [data-anim="bajar"] { --anim: anim-bajar; }
@@ -887,9 +909,14 @@
 [data-anim="cortina"] { --anim: anim-cortina; }
 [data-anim="fundido"] { --anim: anim-fundido; }
 
+/* `backwards` en vez de `both` a propósito: mantiene el primer fotograma
+   durante la espera, pero al terminar devuelve el control a los estilos
+   normales del elemento. Con `both` la animación seguiría fijando `transform`
+   para siempre y los efectos de hover basados en transform no funcionarían. */
 [data-ver="si"] [data-anim],
 [data-ver="si"][data-anim] {
-  animation: var(--anim) var(--dur) var(--salida) var(--retardo) both;
+  opacity: 1;
+  animation: var(--anim) var(--dur) var(--salida) var(--retardo) backwards;
 }
 
 @keyframes anim-subir {
@@ -1005,16 +1032,23 @@
       to { transform: scaleX(1); }
     }
 
-    /* Línea vertical que se dibuja al bajar (pasos del proceso) */
-    .scrub-linea {
-      transform-origin: 50% 0;
-      animation: scrub-linea linear both;
+    /* Líneas que se dibujan a medida que la sección entra (los pasos) */
+    .scrub-linea-y,
+    .scrub-linea-x {
+      animation: linear both;
       animation-timeline: view();
-      animation-range: cover 10% cover 70%;
+      animation-range: cover 12% cover 62%;
     }
-    @keyframes scrub-linea {
+    .scrub-linea-y { animation-name: scrub-linea-y; }
+    .scrub-linea-x { animation-name: scrub-linea-x; }
+
+    @keyframes scrub-linea-y {
       from { transform: scaleY(0); }
       to { transform: scaleY(1); }
+    }
+    @keyframes scrub-linea-x {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
     }
   }
 }
@@ -1024,6 +1058,15 @@
    una barra llena y falsa. */
 .scrub-progreso {
   transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+/* Origen de las líneas que se dibujan. Sin soporte de animation-timeline se
+   quedan dibujadas del todo, que es el estado correcto por defecto. */
+.scrub-linea-y {
+  transform-origin: 50% 0;
+}
+.scrub-linea-x {
   transform-origin: 0 50%;
 }
 

@@ -2,18 +2,15 @@ import Navbar from "@/components/Navbar";
 import FotoPlaceholder from "@/components/FotoPlaceholder";
 import FormReserva from "@/components/FormReserva";
 import Revelar from "@/components/anim/Revelar";
-import Icono from "@/components/Icono";
 import Marquee from "@/components/Marquee";
 import Hero from "@/components/secciones/Hero";
 import Historia from "@/components/secciones/Historia";
+import Caballos from "@/components/secciones/Caballos";
 import Cita from "@/components/secciones/Cita";
-import {
-  servicios,
-  pasos,
-  testimonios,
-  contacto,
-  cintaItems,
-} from "@/lib/data";
+import Servicios from "@/components/secciones/Servicios";
+import Pasos from "@/components/secciones/Pasos";
+import Testimonios from "@/components/secciones/Testimonios";
+import { contacto, cintaItems } from "@/lib/data";
 import {
   obtenerCaballos,
   obtenerGaleria,
@@ -35,123 +32,17 @@ export default async function Home() {
 
       <main id="contenido">
         <Hero />
-
-        {/* ====================== CINTA EN MOVIMIENTO ====================== */}
         <Marquee items={cintaItems} />
-
         <Historia />
-
-        {/* ====================== CABALLOS ====================== */}
-        <section id="caballos" className="py-20 sm:py-28 px-5">
-          <div className="mx-auto max-w-6xl">
-            <Revelar anim="subir" className="text-center mb-14">
-              <span className="antetitulo mb-3">Las estrellas del rancho</span>
-              <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
-                Nuestros Caballos
-              </h2>
-            </Revelar>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
-              {caballos.map((c, i) => (
-                <Revelar anim="subir" key={c.nombre} retardo={i * 100}>
-                  <article className="tarjeta overflow-hidden h-full">
-                    <div className="relative">
-                      <FotoPlaceholder
-                        src={c.img}
-                        alt={c.nombre}
-                        etiqueta={`Foto de ${c.nombre}`}
-                        className="aspect-[3/4]"
-                        sizes="(max-width: 768px) 50vw, 25vw"
-                        zoom
-                        velo
-                      />
-                      <span className="absolute top-3 left-3 placa text-[11px] text-cuero-claro">
-                        {c.temperamento}
-                      </span>
-                      <div className="absolute bottom-0 inset-x-0 p-4">
-                        <h3 className="titulo-display text-2xl leading-none">
-                          {c.nombre}
-                        </h3>
-                        <span className="text-xs uppercase tracking-widest text-atardecer">
-                          {c.raza}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-crema/70 text-sm p-4 leading-relaxed">
-                      {c.descripcion}
-                    </p>
-                  </article>
-                </Revelar>
-              ))}
-            </div>
-          </div>
-        </section>
-
+        <Caballos caballos={caballos} />
         <Cita />
-
-        {/* ====================== SERVICIOS / EVENTOS ====================== */}
-        <section
-          id="servicios"
-          className="py-20 sm:py-28 px-5 bg-noche/50 border-y border-cuero/30"
-        >
-          <div className="mx-auto max-w-6xl">
-            <Revelar anim="subir" className="text-center mb-14">
-              <span className="antetitulo mb-3">Lo que ofrecemos</span>
-              <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
-                Eventos & Servicios
-              </h2>
-            </Revelar>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
-              {servicios.map((s, i) => (
-                <Revelar anim="subir" key={s.titulo} retardo={i * 100}>
-                  <div className="tarjeta text-center p-7 h-full">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-cuero-claro/50 bg-madera/60 text-atardecer mb-5">
-                      <Icono name={s.icono} />
-                    </div>
-                    <h3 className="titulo-display text-xl mb-2">{s.titulo}</h3>
-                    <p className="text-crema/70 text-sm leading-relaxed">
-                      {s.descripcion}
-                    </p>
-                  </div>
-                </Revelar>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ====================== CÓMO FUNCIONA ====================== */}
-        <section className="py-20 sm:py-28 px-5">
-          <div className="mx-auto max-w-6xl">
-            <Revelar anim="subir" className="text-center mb-14">
-              <span className="antetitulo mb-3">Así de fácil</span>
-              <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
-                Cómo funciona
-              </h2>
-            </Revelar>
-
-            <div className="grid md:grid-cols-3 gap-8 relative">
-              {pasos.map((p, i) => (
-                <Revelar anim="subir" key={p.n} retardo={i * 120}>
-                  <div className="text-center px-4">
-                    <div className="titulo-display text-6xl text-cuero/70 mb-3">
-                      {p.n}
-                    </div>
-                    <h3 className="titulo-display text-2xl mb-3">{p.titulo}</h3>
-                    <p className="text-crema/70 leading-relaxed">
-                      {p.descripcion}
-                    </p>
-                  </div>
-                </Revelar>
-              ))}
-            </div>
-          </div>
-        </section>
+        <Servicios />
+        <Pasos />
 
         {/* ====================== GALERÍA ====================== */}
         <section
           id="galeria"
-          className="py-20 sm:py-28 px-5 bg-noche/50 border-y border-cuero/30"
+          className="py-20 sm:py-28 px-5 bg-noche/55 border-y border-cuero/25"
         >
           <div className="mx-auto max-w-6xl">
             <Revelar anim="subir" className="text-center mb-14">
@@ -189,41 +80,12 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ====================== TESTIMONIOS ====================== */}
-        <section id="testimonios" className="py-20 sm:py-28 px-5">
-          <div className="mx-auto max-w-6xl">
-            <Revelar anim="subir" className="text-center mb-14">
-              <span className="antetitulo mb-3">Lo que dicen de nosotros</span>
-              <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
-                Historias del rancho
-              </h2>
-            </Revelar>
-
-            <div className="grid md:grid-cols-3 gap-7">
-              {testimonios.map((t, i) => (
-                <Revelar anim="subir" key={t.autor} retardo={i * 120}>
-                  <figure className="tarjeta p-7 h-full flex flex-col">
-                    <div className="text-atardecer text-lg mb-3">★★★★★</div>
-                    <blockquote className="text-crema/85 leading-relaxed italic flex-1">
-                      “{t.texto}”
-                    </blockquote>
-                    <figcaption className="mt-5 pt-4 border-t border-cuero/30">
-                      <div className="titulo-display text-lg">{t.autor}</div>
-                      <div className="text-atardecer text-xs uppercase tracking-widest">
-                        {t.evento}
-                      </div>
-                    </figcaption>
-                  </figure>
-                </Revelar>
-              ))}
-            </div>
-          </div>
-        </section>
+        <Testimonios />
 
         {/* ====================== RESERVAR ====================== */}
         <section
           id="reservar"
-          className="py-20 sm:py-28 px-5 bg-noche/50 border-y border-cuero/30"
+          className="py-20 sm:py-28 px-5 bg-noche/55 border-y border-cuero/25"
         >
           <div className="mx-auto max-w-3xl">
             <Revelar anim="subir" className="text-center mb-10">
