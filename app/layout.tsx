@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Rye, Oswald, Zilla_Slab } from "next/font/google";
+import { SITIO } from "@/lib/sitio";
 import "./globals.css";
 
 /*
@@ -32,14 +33,39 @@ const zillaSlab = Zilla_Slab({
 });
 
 export const metadata: Metadata = {
-  title: "Rancho el Capricho · Caballos para eventos",
-  description:
-    "Renta de caballos para bodas, XV años, cabalgatas y eventos sociales. Vive la experiencia vaquera en Rancho el Capricho.",
+  // Hace absolutas las rutas relativas de Open Graph y del canonical.
+  metadataBase: new URL(SITIO.url),
+  title: {
+    default: SITIO.titulo,
+    template: `%s · ${SITIO.nombre}`,
+  },
+  description: SITIO.descripcion,
+  applicationName: SITIO.nombre,
+  keywords: [
+    "renta de caballos",
+    "caballos para bodas",
+    "caballos para XV años",
+    "cabalgatas",
+    "sesiones de fotos con caballos",
+    "eventos con caballos",
+  ],
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "Rancho el Capricho · Caballos para eventos",
-    description:
-      "Renta de caballos para bodas, XV años, cabalgatas y eventos sociales.",
     type: "website",
+    locale: "es_MX",
+    siteName: SITIO.nombre,
+    title: SITIO.titulo,
+    description: SITIO.descripcion,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITIO.titulo,
+    description: SITIO.descripcion,
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

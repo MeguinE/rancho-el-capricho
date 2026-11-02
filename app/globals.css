@@ -827,6 +827,24 @@
     transform: none;
   }
 
+  /* ===== Hueso: bloque gris que reserva el sitio mientras carga ===== */
+
+  .hueso {
+    border-radius: 0.4rem;
+    background: linear-gradient(
+      90deg,
+      rgba(139, 69, 19, 0.18) 0%,
+      rgba(193, 135, 59, 0.3) 50%,
+      rgba(139, 69, 19, 0.18) 100%
+    );
+    background-size: 200% 100%;
+    animation: hueso-brillo 1.6s ease-in-out infinite;
+  }
+  @keyframes hueso-brillo {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+
   /* ===== Botón flotante de volver arriba ===== */
 
   .boton-arriba {

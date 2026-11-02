@@ -11,6 +11,7 @@ import Testimonios from "@/components/secciones/Testimonios";
 import Reservar from "@/components/secciones/Reservar";
 import PieRancho from "@/components/secciones/PieRancho";
 import { cintaItems } from "@/lib/data";
+import { fichaDeNegocio } from "@/lib/sitio";
 import {
   obtenerCaballos,
   obtenerGaleria,
@@ -28,6 +29,15 @@ export default async function Home() {
 
   return (
     <>
+      {/* Ficha de negocio para los buscadores: teléfono, ubicación y redes en
+          los resultados, no solo el título. Sale de lib/data.ts. */}
+      <script
+        type="application/ld+json"
+        // El contenido es nuestro y se serializa con JSON.stringify, no texto
+        // que venga de fuera.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(fichaDeNegocio()) }}
+      />
+
       <Navbar logoUrl={logoUrl} />
 
       <main id="contenido">
