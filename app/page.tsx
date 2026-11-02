@@ -1,5 +1,4 @@
 import Navbar from "@/components/Navbar";
-import FotoPlaceholder from "@/components/FotoPlaceholder";
 import FormReserva from "@/components/FormReserva";
 import Revelar from "@/components/anim/Revelar";
 import Marquee from "@/components/Marquee";
@@ -9,6 +8,7 @@ import Caballos from "@/components/secciones/Caballos";
 import Cita from "@/components/secciones/Cita";
 import Servicios from "@/components/secciones/Servicios";
 import Pasos from "@/components/secciones/Pasos";
+import Galeria from "@/components/secciones/Galeria";
 import Testimonios from "@/components/secciones/Testimonios";
 import { contacto, cintaItems } from "@/lib/data";
 import {
@@ -39,47 +39,7 @@ export default async function Home() {
         <Servicios />
         <Pasos />
 
-        {/* ====================== GALERÍA ====================== */}
-        <section
-          id="galeria"
-          className="py-20 sm:py-28 px-5 bg-noche/55 border-y border-cuero/25"
-        >
-          <div className="mx-auto max-w-6xl">
-            <Revelar anim="subir" className="text-center mb-14">
-              <span className="antetitulo mb-3">Momentos en el rancho</span>
-              <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
-                Galería
-              </h2>
-            </Revelar>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[180px]">
-              {galeria.map((g, i) => (
-                <Revelar
-                  anim="subir"
-                  key={i}
-                  retardo={(i % 4) * 80}
-                  className={
-                    g.span === "ancho"
-                      ? "col-span-2"
-                      : g.span === "alto"
-                      ? "row-span-2"
-                      : ""
-                  }
-                >
-                  <FotoPlaceholder
-                    src={g.img}
-                    alt={g.alt}
-                    etiqueta={`Evento ${i + 1}`}
-                    className="rounded-lg h-full w-full"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                    zoom
-                  />
-                </Revelar>
-              ))}
-            </div>
-          </div>
-        </section>
-
+        <Galeria fotos={galeria} />
         <Testimonios />
 
         {/* ====================== RESERVAR ====================== */}
