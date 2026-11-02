@@ -4,16 +4,15 @@ import FormReserva from "@/components/FormReserva";
 import Revelar from "@/components/anim/Revelar";
 import Icono from "@/components/Icono";
 import Marquee from "@/components/Marquee";
-import Contador from "@/components/anim/Contador";
 import Hero from "@/components/secciones/Hero";
+import Historia from "@/components/secciones/Historia";
+import Cita from "@/components/secciones/Cita";
 import {
   servicios,
   pasos,
   testimonios,
   contacto,
-  fotos,
   cintaItems,
-  logros,
 } from "@/lib/data";
 import {
   obtenerCaballos,
@@ -40,60 +39,7 @@ export default async function Home() {
         {/* ====================== CINTA EN MOVIMIENTO ====================== */}
         <Marquee items={cintaItems} />
 
-        {/* ====================== SOBRE EL RANCHO ====================== */}
-        <section id="historia" className="py-20 sm:py-28 px-5">
-          <div className="mx-auto max-w-6xl grid md:grid-cols-2 gap-12 items-center">
-            <Revelar anim="subir">
-              <span className="antetitulo antetitulo--izq mb-3">
-                Nuestra historia
-              </span>
-              <h2 className="titulo-display text-4xl sm:text-5xl mt-3 mb-6">
-                Tradición vaquera, momentos inolvidables
-              </h2>
-              <p className="text-crema/85 text-lg leading-relaxed mb-4">
-                En{" "}
-                <strong className="text-cuero-claro">Rancho el Capricho</strong>{" "}
-                criamos y cuidamos caballos con cariño para llevar magia a tus
-                celebraciones. Cada animal está entrenado para ser dócil, seguro
-                y espectacular ante la cámara.
-              </p>
-              <p className="text-crema/70 leading-relaxed">
-                Más que una renta, ofrecemos una experiencia: el aroma del
-                campo, el galope al atardecer y recuerdos que durarán toda la
-                vida.
-              </p>
-              <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-                {logros.map((l) => (
-                  <div
-                    key={l.etiqueta}
-                    className="bg-carbon/50 border border-cuero/40 rounded-lg p-4"
-                  >
-                    <div className="titulo-display text-3xl text-atardecer">
-                      <Contador hasta={l.valor} prefijo="+" />
-                    </div>
-                    <div className="text-crema/60 text-xs uppercase tracking-wider mt-1">
-                      {l.etiqueta}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Revelar>
-            <Revelar anim="subir" retardo={150}>
-              <FotoPlaceholder
-                src={fotos.historia}
-                alt="El rancho"
-                etiqueta="Foto del rancho / panorámica"
-                className="aspect-[4/5] rounded-xl"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                zoom
-              />
-            </Revelar>
-          </div>
-        </section>
-
-        <div className="mx-auto max-w-6xl px-5">
-          <div className="soga" />
-        </div>
+        <Historia />
 
         {/* ====================== CABALLOS ====================== */}
         <section id="caballos" className="py-20 sm:py-28 px-5">
@@ -141,27 +87,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ====================== FRASE CON PARALLAX ====================== */}
-        <section
-          className="relative parallax-fondo py-32 sm:py-44 px-5"
-          style={{ backgroundImage: `url(${fotos.cita})` }}
-        >
-          <div className="absolute inset-0 bg-madera/80" />
-          <div className="absolute inset-0 vineta" />
-          <Revelar
-            anim="subir"
-            className="relative z-10 mx-auto max-w-4xl text-center"
-          >
-            <span className="text-atardecer text-4xl" aria-hidden="true">
-              “
-            </span>
-            <p className="titulo-display text-3xl sm:text-5xl leading-tight mt-2">
-              El caballo es el único compañero que convierte
-              <span className="texto-fuego"> un momento en leyenda.</span>
-            </p>
-            <div className="soga max-w-xs mx-auto mt-8" />
-          </Revelar>
-        </section>
+        <Cita />
 
         {/* ====================== SERVICIOS / EVENTOS ====================== */}
         <section

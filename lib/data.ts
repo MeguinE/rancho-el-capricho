@@ -22,7 +22,16 @@ const demo = (id: string, w = 1200) =>
 export const fotos = {
   hero: demo("photo-1553284965-83fd3e82fa5a", 1920),
   historia: demo("photo-1444858291040-58f756a3bdd6", 1200),
+  // Foto pequeña que se monta sobre la anterior en la sección de historia
+  detalle: demo("photo-1452378174528-3090a4bba7b2", 800),
   cita: demo("photo-1598974357801-cbca100e65d3", 1920),
+};
+
+// Datos generales del rancho
+export const rancho = {
+  nombre: "Rancho el Capricho",
+  lema: "Caballos para eventos sociales",
+  desde: 2015,
 };
 
 // Cifras que se muestran en el hero y en la sección de historia
