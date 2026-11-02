@@ -46,7 +46,7 @@ export default async function CaballosPage() {
           <form
             key={c.id}
             action={guardarCaballoAction}
-            className="card-rancho p-5 flex gap-5"
+            className="tarjeta p-5 flex gap-5"
           >
             <input type="hidden" name="id" value={c.id} />
             <input type="hidden" name="img_actual" value={c.img_url ?? ""} />

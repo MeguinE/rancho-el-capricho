@@ -116,7 +116,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
             </li>
           ))}
           <li>
-            <a href="#reservar" className="btn-pill">
+            <a href="#reservar" className="btn btn--pastilla">
               Reservar
             </a>
           </li>
@@ -190,7 +190,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
             <a
               href="#reservar"
               onClick={() => setAbierto(false)}
-              className="btn-pill !text-sm !px-7 !py-3"
+              className="btn btn--pastilla text-sm px-7 py-3"
             >
               Reservar caballos
             </a>

@@ -1,428 +1,1009 @@
 @import "tailwindcss";
 
-/*
-  Paleta "Rancho el Capricho" — estética western / cuero / atardecer en el rancho.
-  Cambia estos valores si quieres ajustar la identidad visual.
-*/
+/* ============================================================================
+   RANCHO EL CAPRICHO — Sistema de diseño
+   ----------------------------------------------------------------------------
+   Organizado en tres bloques:
+     1. Tokens      → colores, tipografías, curvas de animación, sombras
+     2. Base        → reglas globales (body, foco, scrollbar, accesibilidad)
+     3. Componentes → botones, tarjetas, campos, cintas, animaciones
+
+   Los componentes viven en `@layer components` para que cualquier utilidad de
+   Tailwind escrita en el JSX pueda sobreescribirlos sin necesitar `!important`.
+   ========================================================================== */
+
+/* ─────────────────────────── 1. TOKENS ─────────────────────────── */
+
 :root {
-  --background: #1a1410;      /* madera quemada / noche en el rancho */
-  --foreground: #f3e9d8;      /* crema pergamino */
-  --cuero: #8b4513;           /* cuero / silla de montar */
-  --cuero-claro: #c1873b;     /* dorado tostado */
-  --polvo: #d9c2a3;           /* tierra seca */
-  --sangre: #7a1f1f;          /* rojo cantina */
-  --atardecer: #e07b39;       /* naranja atardecer */
-  --verde-pasto: #4a5d3a;     /* pasto / mezquite */
-  --crema: #f3e9d8;
+  /* Superficies, de la más profunda a la más clara */
+  --carbon: #0c0806; /* fondos hundidos, pie de página */
+  --noche: #120d09; /* secciones alternas */
+  --madera: #1a1410; /* fondo general: madera quemada */
+  --madera-claro: #241a13; /* tarjetas y relieves */
+
+  /* Color de marca */
+  --cuero: #8b4513; /* silla de montar */
+  --cuero-claro: #c1873b; /* dorado tostado */
+  --dorado: #e6b566; /* brillo / detalles */
+  --atardecer: #e07b39; /* acento principal */
+  --sangre: #7a1f1f; /* rojo cantina: errores */
+  --verde-pasto: #4a5d3a; /* mezquite: éxito */
+  --polvo: #d9c2a3; /* tierra seca */
+  --crema: #f3e9d8; /* pergamino: texto */
+
+  --background: var(--madera);
+  --foreground: var(--crema);
+
+  /* Curvas de animación. Una intención por curva. */
+  --salida: cubic-bezier(0.22, 1, 0.36, 1); /* entra y frena con elegancia */
+  --suave: cubic-bezier(0.4, 0, 0.2, 1); /* transiciones de interfaz */
+  --rebote: cubic-bezier(0.34, 1.56, 0.64, 1); /* micro-interacciones */
+
+  /* Duraciones */
+  --rapido: 180ms;
+  --medio: 420ms;
+  --lento: 820ms;
+
+  /* Sombras */
+  --sombra-baja: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --sombra-media: 0 14px 34px rgba(0, 0, 0, 0.45);
+  --sombra-alta: 0 28px 70px rgba(0, 0, 0, 0.6);
+  --brillo-fuego: 0 0 44px rgba(224, 123, 57, 0.28);
+
+  /* Ancho del contenido */
+  --contenido: 76rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-carbon: var(--carbon);
+  --color-noche: var(--noche);
+  --color-madera: var(--madera);
+  --color-madera-claro: var(--madera-claro);
   --color-cuero: var(--cuero);
   --color-cuero-claro: var(--cuero-claro);
+  --color-dorado: var(--dorado);
   --color-polvo: var(--polvo);
   --color-sangre: var(--sangre);
   --color-atardecer: var(--atardecer);
   --color-verde-pasto: var(--verde-pasto);
   --color-crema: var(--crema);
+
   --font-display: var(--font-rye);
-  --font-rustico: var(--font-special-elite);
   --font-sans: var(--font-oswald);
   --font-slab: var(--font-zilla);
+
+  --ease-salida: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-rebote: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-* {
-  box-sizing: border-box;
+/* ──────────────────────────── 2. BASE ──────────────────────────── */
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Deja aire bajo el navbar fijo al saltar a una sección con ancla */
+    scroll-padding-top: 6.5rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--madera);
+    color: var(--crema);
+    font-family: var(--font-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  /* Un solo anillo de foco para todo el sitio, visible solo con teclado */
+  :focus-visible {
+    outline: 2px solid var(--atardecer);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  ::selection {
+    background: var(--atardecer);
+    color: var(--madera);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Evita que el navegador anime el salto cuando el usuario lo pidió */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 11px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--carbon);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--cuero);
+    border-radius: 999px;
+    border: 3px solid var(--carbon);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--cuero-claro);
+  }
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* ───────────────────────── 3. COMPONENTES ──────────────────────── */
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
+@layer components {
+  /* ===== Fondos y atmósfera ===== */
 
-/* Textura de madera/tierra sutil de fondo */
-.bg-rancho {
-  background-color: var(--background);
-  background-image:
-    radial-gradient(ellipse at top, rgba(224, 123, 57, 0.08), transparent 60%),
-    repeating-linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.05) 0px,
-      rgba(0, 0, 0, 0.05) 2px,
-      transparent 2px,
-      transparent 6px
+  /* Textura de tierra + luz cálida arriba */
+  .fondo-rancho {
+    background-color: var(--madera);
+    background-image:
+      radial-gradient(
+        ellipse 80% 50% at 50% -10%,
+        rgba(224, 123, 57, 0.1),
+        transparent 70%
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.045) 0px,
+        rgba(0, 0, 0, 0.045) 2px,
+        transparent 2px,
+        transparent 7px
+      );
+  }
+
+  /* Grano de película sobre todo el sitio */
+  .grano::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    pointer-events: none;
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Oscurecido en los bordes, para fotos de fondo */
+  .vineta {
+    box-shadow: inset 0 0 200px 46px rgba(0, 0, 0, 0.78);
+  }
+
+  /* Resplandor de atardecer que se puede colocar detrás de cualquier bloque */
+  .luz-atardecer::before {
+    content: "";
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: 60%;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(224, 123, 57, 0.18),
+      transparent 68%
     );
-}
+    filter: blur(14px);
+  }
 
-/* Separador tipo cuerda / soga */
-.soga {
-  height: 6px;
-  width: 100%;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--cuero-claro) 0px,
-    var(--cuero-claro) 8px,
-    var(--cuero) 8px,
-    var(--cuero) 16px
-  );
-  border-radius: 999px;
-  opacity: 0.85;
-}
+  /* Franja de cerros: separa dos secciones con silueta de montaña */
+  .cerros {
+    height: 5rem;
+    background: var(--carbon);
+    clip-path: polygon(
+      0 62%,
+      11% 44%,
+      26% 58%,
+      42% 34%,
+      58% 54%,
+      74% 38%,
+      88% 56%,
+      100% 42%,
+      100% 100%,
+      0 100%
+    );
+  }
 
-/* Marco para los placeholders de fotos */
-.marco-foto {
-  position: relative;
-  overflow: hidden;
-  border: 3px solid var(--cuero);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-  background:
-    repeating-linear-gradient(
+  /* ===== Tipografía ===== */
+
+  .titulo-display {
+    font-family: var(--font-display), serif;
+    color: var(--cuero-claro);
+    letter-spacing: -0.005em;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+  }
+
+  /* Texto con degradado de atardecer */
+  .texto-fuego {
+    background: linear-gradient(
+      180deg,
+      #fff3dd 0%,
+      #f3c277 38%,
+      #e07b39 74%,
+      #a9511f 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 6px 18px rgba(224, 123, 57, 0.3));
+  }
+
+  /* Texto hueco (solo contorno), para números grandes de fondo */
+  .texto-hueco {
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(193, 135, 59, 0.45);
+  }
+
+  /* Antetítulo con líneas decorativas a los lados */
+  .antetitulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--atardecer);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .antetitulo::before,
+  .antetitulo::after {
+    content: "";
+    width: 2rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cuero-claro));
+  }
+  .antetitulo::after {
+    background: linear-gradient(90deg, var(--cuero-claro), transparent);
+  }
+  .antetitulo--izq::before {
+    display: none;
+  }
+  .antetitulo--izq::after {
+    width: 3rem;
+  }
+
+  /* ===== Separadores ===== */
+
+  /* Cuerda trenzada */
+  .soga {
+    height: 6px;
+    width: 100%;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--cuero-claro) 0px,
+      var(--cuero-claro) 8px,
+      var(--cuero) 8px,
+      var(--cuero) 16px
+    );
+    border-radius: 999px;
+    opacity: 0.8;
+  }
+
+  /* Línea fina con una estrella al centro */
+  .divisor-estrella {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--atardecer);
+  }
+  .divisor-estrella::before,
+  .divisor-estrella::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(193, 135, 59, 0.55),
+      transparent
+    );
+  }
+
+  /* ===== Botones ===== */
+
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    overflow: hidden;
+    font-family: var(--font-sans), sans-serif;
+    font-weight: 600;
+    font-size: 0.86rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.95rem 2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition:
+      transform var(--rapido) var(--suave),
+      box-shadow var(--rapido) var(--suave),
+      background-color var(--medio) var(--suave),
+      color var(--medio) var(--suave),
+      border-color var(--medio) var(--suave);
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  /* Destello que barre el botón al pasar el cursor */
+  .btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      100deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    transition: transform 620ms var(--salida);
+  }
+  .btn:hover:not(:disabled)::after {
+    transform: translateX(120%);
+  }
+
+  /* Variante principal: naranja con sombra dura tipo sello */
+  .btn--fuego {
+    background: var(--atardecer);
+    color: var(--madera);
+    border: 2px solid var(--carbon);
+    box-shadow: 4px 4px 0 var(--cuero);
+  }
+  .btn--fuego:hover:not(:disabled) {
+    background: var(--dorado);
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 var(--cuero);
+  }
+  .btn--fuego:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--cuero);
+  }
+
+  /* Variante secundaria: contorno dorado */
+  .btn--fantasma {
+    background: rgba(193, 135, 59, 0.07);
+    color: var(--crema);
+    border: 2px solid rgba(193, 135, 59, 0.6);
+    backdrop-filter: blur(6px);
+  }
+  .btn--fantasma:hover:not(:disabled) {
+    background: rgba(193, 135, 59, 0.18);
+    border-color: var(--cuero-claro);
+    transform: translateY(-2px);
+  }
+
+  /* Variante compacta tipo pastilla, para el navbar */
+  .btn--pastilla {
+    font-family: var(--font-slab), serif;
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
+    padding: 0.62rem 1.45rem;
+    border-radius: 999px;
+    color: var(--cuero-claro);
+    background: rgba(193, 135, 59, 0.07);
+    border: 1px solid rgba(193, 135, 59, 0.55);
+  }
+  .btn--pastilla:hover:not(:disabled) {
+    color: var(--madera);
+    background: var(--cuero-claro);
+    border-color: var(--cuero-claro);
+  }
+
+  /* Variante de texto, sin caja */
+  .btn--texto {
+    padding: 0.4rem 0;
+    background: none;
+    border: none;
+    color: var(--crema);
+    letter-spacing: 0.08em;
+  }
+  .btn--texto:hover:not(:disabled) {
+    color: var(--atardecer);
+  }
+  .btn--texto::after {
+    display: none;
+  }
+
+  /* ===== Tarjetas ===== */
+
+  .tarjeta {
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(
+      165deg,
+      rgba(36, 26, 19, 0.78),
+      rgba(12, 8, 6, 0.72)
+    );
+    border: 1px solid rgba(139, 69, 19, 0.5);
+    border-radius: 0.9rem;
+    transition:
+      transform var(--medio) var(--salida),
+      border-color var(--medio) var(--suave),
+      box-shadow var(--medio) var(--suave);
+  }
+  .tarjeta:hover {
+    border-color: rgba(224, 123, 57, 0.75);
+    box-shadow: var(--sombra-media);
+  }
+
+  /* Mientras <Tarjeta3D> sigue al cursor, el giro debe responder al instante */
+  .tarjeta[data-inclinando="si"] {
+    transition:
+      transform 90ms linear,
+      border-color var(--medio) var(--suave),
+      box-shadow var(--medio) var(--suave);
+  }
+
+  /* Reflejo que sigue al cursor. Las variables las escribe <Tarjeta3D>. */
+  .tarjeta--foco::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      22rem circle at var(--raton-x, 50%) var(--raton-y, 50%),
+      rgba(224, 123, 57, 0.22),
+      transparent 62%
+    );
+    transition: opacity var(--medio) var(--suave);
+  }
+  .tarjeta--foco:hover::before {
+    opacity: 1;
+  }
+
+  /* Marco de foto estilo cuero */
+  .marco-foto {
+    position: relative;
+    overflow: hidden;
+    border: 3px solid var(--cuero);
+    box-shadow: var(--sombra-media);
+    background-image: repeating-linear-gradient(
       45deg,
-      rgba(139, 69, 19, 0.18) 0px,
-      rgba(139, 69, 19, 0.18) 14px,
+      rgba(139, 69, 19, 0.2) 0px,
+      rgba(139, 69, 19, 0.2) 14px,
       rgba(193, 135, 59, 0.12) 14px,
       rgba(193, 135, 59, 0.12) 28px
     );
+  }
+
+  /* Enlace de salto: invisible hasta que llega el foco del teclado */
+  .salto-contenido {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    padding: 0.7rem 1.3rem;
+    border-radius: 5px;
+    background: var(--atardecer);
+    color: var(--madera);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+    transform: translateY(-160%);
+    transition: transform var(--medio) var(--salida);
+  }
+  .salto-contenido:focus-visible {
+    transform: none;
+  }
+
+  /* ===== Insignias y placas ===== */
+
+  .placa {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(12, 8, 6, 0.62);
+    border: 1px solid rgba(193, 135, 59, 0.42);
+    padding: 0.42rem 1rem;
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+    font-size: 0.74rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .insignia {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+  }
+
+  /* ===== Campos de formulario ===== */
+
+  .campo {
+    width: 100%;
+    background: rgba(12, 8, 6, 0.72);
+    border: 1.5px solid rgba(139, 69, 19, 0.65);
+    border-radius: 0.55rem;
+    padding: 0.8rem 1rem;
+    color: var(--crema);
+    font-family: inherit;
+    font-size: 1rem;
+    transition:
+      border-color var(--rapido) var(--suave),
+      box-shadow var(--rapido) var(--suave),
+      background-color var(--rapido) var(--suave);
+  }
+  .campo::placeholder {
+    color: rgba(243, 233, 216, 0.35);
+  }
+  .campo:hover {
+    border-color: rgba(193, 135, 59, 0.8);
+  }
+  .campo:focus {
+    outline: none;
+    border-color: var(--atardecer);
+    background: rgba(12, 8, 6, 0.9);
+    box-shadow: 0 0 0 3px rgba(224, 123, 57, 0.18);
+  }
+  .campo[aria-invalid="true"] {
+    border-color: #d4604f;
+    box-shadow: 0 0 0 3px rgba(212, 96, 79, 0.16);
+  }
+
+  .etiqueta-campo {
+    display: block;
+    font-size: 0.74rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(243, 233, 216, 0.65);
+    margin-bottom: 0.4rem;
+  }
+
+  /* Opción seleccionable grande (tipo tarjeta de radio) */
+  .opcion {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: left;
+    padding: 0.9rem 1rem;
+    border-radius: 0.65rem;
+    border: 1.5px solid rgba(139, 69, 19, 0.55);
+    background: rgba(12, 8, 6, 0.5);
+    cursor: pointer;
+    transition:
+      border-color var(--rapido) var(--suave),
+      background-color var(--rapido) var(--suave),
+      transform var(--rapido) var(--rebote);
+  }
+  .opcion:hover {
+    border-color: rgba(193, 135, 59, 0.9);
+    transform: translateY(-2px);
+  }
+  .opcion[aria-pressed="true"],
+  .opcion[data-activa="true"] {
+    border-color: var(--atardecer);
+    background: rgba(224, 123, 57, 0.14);
+    box-shadow: 0 0 0 1px var(--atardecer) inset;
+  }
+
+  /* ===== Enlace con subrayado que crece ===== */
+  .enlace-nav {
+    position: relative;
+    font-family: var(--font-slab), serif;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    letter-spacing: 0.13em;
+    color: rgba(243, 233, 216, 0.85);
+    transition: color var(--rapido) var(--suave);
+  }
+  .enlace-nav::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.4rem;
+    height: 2px;
+    width: 0;
+    background: var(--atardecer);
+    transition: width var(--medio) var(--salida);
+  }
+  .enlace-nav:hover {
+    color: var(--atardecer);
+  }
+  .enlace-nav:hover::after,
+  .enlace-nav[aria-current="true"]::after {
+    width: 100%;
+  }
+  .enlace-nav[aria-current="true"] {
+    color: var(--atardecer);
+  }
+
+  /* ===== Cinta de texto en movimiento ===== */
+
+  .cinta {
+    display: flex;
+    overflow: hidden;
+    user-select: none;
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 7%,
+      #000 93%,
+      transparent
+    );
+  }
+  .cinta__via {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 2.5rem;
+    padding-right: 2.5rem;
+    animation: cinta-correr var(--cinta-dur, 32s) linear infinite;
+  }
+  .cinta--inversa .cinta__via {
+    animation-direction: reverse;
+  }
+  .cinta:hover .cinta__via {
+    animation-play-state: paused;
+  }
+  @keyframes cinta-correr {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
+  /* ===== Carrusel con ajuste de desplazamiento ===== */
+
+  .deslizador {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .deslizador::-webkit-scrollbar {
+    display: none;
+  }
+  .deslizador > * {
+    scroll-snap-align: center;
+    flex: 0 0 auto;
+  }
+
+  /* ===== Polvo dorado flotante ===== */
+
+  .polvo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .polvo i {
+    position: absolute;
+    bottom: -12px;
+    border-radius: 50%;
+    background: rgba(243, 233, 216, 0.55);
+    box-shadow: 0 0 7px rgba(243, 194, 119, 0.7);
+    animation: polvo-subir linear infinite;
+    will-change: transform, opacity;
+  }
+  @keyframes polvo-subir {
+    0% {
+      transform: translate3d(0, 0, 0);
+      opacity: 0;
+    }
+    12% {
+      opacity: 0.85;
+    }
+    88% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: translate3d(var(--deriva, 40px), -105vh, 0);
+      opacity: 0;
+    }
+  }
 }
 
-/* Animación suave al aparecer */
-@keyframes subir {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.aparecer {
-  animation: subir 0.8s ease both;
-}
+/* ============================================================================
+   ANIMACIONES
+   ----------------------------------------------------------------------------
+   Dos mecanismos, cada uno para lo suyo:
 
-/* Botón estilo "branding" */
-.btn-rancho {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--atardecer);
-  color: #1a1410;
-  font-family: var(--font-sans), sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 0.9rem 2rem;
-  border-radius: 4px;
-  border: 2px solid #1a1410;
-  box-shadow: 4px 4px 0 var(--cuero);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
-  cursor: pointer;
-}
-.btn-rancho:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--cuero);
-  background: var(--cuero-claro);
-}
-.btn-rancho:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--cuero);
-}
+   A) Entradas al aparecer en pantalla → `[data-anim]`. El componente <Revelar>
+      marca su contenedor con `data-ver="si"` usando IntersectionObserver y eso
+      dispara la animación. Un solo observador por bloque, no escucha scroll.
 
-.btn-fantasma {
-  background: transparent;
-  color: var(--crema);
-  border: 2px solid var(--cuero-claro);
-  box-shadow: none;
-}
-.btn-fantasma:hover {
-  background: rgba(193, 135, 59, 0.15);
-  color: var(--crema);
-}
+   B) Efectos continuos ligados al scroll → animaciones con `animation-timeline`
+      (parallax, barras de progreso). Corren fuera del hilo principal, sin JS.
+      Se aplican solo si el navegador las soporta: si no, no pasa nada.
+   ========================================================================== */
 
-/* Tipografía slab para logo / navbar */
-.font-slab {
-  font-family: var(--font-slab), Georgia, serif;
-}
+/* ---- A) Entradas al aparecer ---- */
 
-/* Botón pill con borde fino dorado (elegante, para el navbar) */
-.btn-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: var(--font-slab), serif;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 0.78rem;
-  color: var(--cuero-claro);
-  background: rgba(193, 135, 59, 0.06);
-  border: 1px solid rgba(193, 135, 59, 0.55);
-  padding: 0.6rem 1.4rem;
-  border-radius: 999px;
-  transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
-}
-.btn-pill:hover {
-  color: #1a1410;
-  background: var(--cuero-claro);
-  border-color: var(--cuero-claro);
-}
-
-/* ===== Grano de película sobre todo el sitio (capa fija) ===== */
-.grano::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* ===== Kicker: pequeño título con líneas decorativas ===== */
-.kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--atardecer);
-  text-transform: uppercase;
-  letter-spacing: 0.28em;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-.kicker::before,
-.kicker::after {
-  content: "";
-  width: 28px;
-  height: 1px;
-  background: var(--cuero-claro);
-  opacity: 0.6;
-}
-.kicker-izq::after {
-  display: none;
-}
-
-/* ===== Animación reveal al hacer scroll ===== */
-.reveal {
+/* Cada elemento declara QUÉ animación quiere con `--anim`; el ancestro marcado
+   con data-ver="si" decide CUÁNDO se dispara. Así da igual que el elemento
+   animado sea el propio <Revelar> o uno de sus descendientes. */
+[data-anim] {
+  --anim: anim-subir;
+  --retardo: 0ms;
+  --dur: var(--lento);
   opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
-}
-.reveal-on {
-  opacity: 1;
-  transform: translateY(0);
+  will-change: transform, opacity;
 }
 
-/* ===== Título display con sombra de relieve ===== */
-.titulo-display {
-  font-family: var(--font-display), serif;
-  color: var(--cuero-claro);
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+[data-anim="bajar"] { --anim: anim-bajar; }
+[data-anim="izq"] { --anim: anim-izq; }
+[data-anim="der"] { --anim: anim-der; }
+[data-anim="escala"] { --anim: anim-escala; }
+[data-anim="difuminar"] { --anim: anim-difuminar; }
+[data-anim="cortina"] { --anim: anim-cortina; }
+[data-anim="fundido"] { --anim: anim-fundido; }
+
+[data-ver="si"] [data-anim],
+[data-ver="si"][data-anim] {
+  animation: var(--anim) var(--dur) var(--salida) var(--retardo) both;
 }
 
-/* ===== Viñeta para fondos de imagen ===== */
-.vineta {
-  box-shadow: inset 0 0 180px 40px rgba(0, 0, 0, 0.75);
+@keyframes anim-subir {
+  from { opacity: 0; transform: translate3d(0, 2.2rem, 0); }
+  to { opacity: 1; transform: none; }
 }
-
-/* ===== Tarjeta con borde estilo cuero ===== */
-.card-rancho {
-  background: rgba(15, 11, 8, 0.55);
-  border: 1px solid rgba(139, 69, 19, 0.45);
-  border-radius: 0.75rem;
-  transition: transform 0.3s ease, border-color 0.3s ease,
-    box-shadow 0.3s ease;
+@keyframes anim-bajar {
+  from { opacity: 0; transform: translate3d(0, -2.2rem, 0); }
+  to { opacity: 1; transform: none; }
 }
-.card-rancho:hover {
-  transform: translateY(-6px);
-  border-color: var(--atardecer);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+@keyframes anim-izq {
+  from { opacity: 0; transform: translate3d(-2.8rem, 0, 0); }
+  to { opacity: 1; transform: none; }
 }
-
-/* ===== Scrollbar al estilo del rancho ===== */
-::-webkit-scrollbar {
-  width: 12px;
+@keyframes anim-der {
+  from { opacity: 0; transform: translate3d(2.8rem, 0, 0); }
+  to { opacity: 1; transform: none; }
 }
-::-webkit-scrollbar-track {
-  background: #0f0b08;
+@keyframes anim-escala {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: none; }
 }
-::-webkit-scrollbar-thumb {
-  background: var(--cuero);
-  border-radius: 999px;
-  border: 3px solid #0f0b08;
+@keyframes anim-difuminar {
+  from { opacity: 0; transform: translate3d(0, 1.8rem, 0); filter: blur(12px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--cuero-claro);
+@keyframes anim-fundido {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-
-/* ===== Estrella / divisor de placa ===== */
-.placa {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(15, 11, 8, 0.6);
-  border: 1px solid rgba(193, 135, 59, 0.4);
-  padding: 0.4rem 1rem;
-  border-radius: 999px;
-  backdrop-filter: blur(4px);
-}
-
-/* ===== Ken Burns: zoom lento e infinito para el hero ===== */
-@keyframes kenburns {
-  0% {
-    transform: scale(1.05) translate(0, 0);
-  }
-  100% {
-    transform: scale(1.22) translate(-2%, -2%);
-  }
-}
-.ken-burns {
-  animation: kenburns 22s ease-in-out infinite alternate;
-}
-
-/* ===== Entrada cinematográfica escalonada ===== */
-@keyframes heroIn {
+/* Se descubre de abajo hacia arriba, como un telón */
+@keyframes anim-cortina {
   from {
-    opacity: 0;
-    transform: translateY(40px);
-    filter: blur(8px);
+    opacity: 1;
+    clip-path: inset(100% 0 0 0);
+    transform: translate3d(0, 1.2rem, 0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
+    clip-path: inset(0 0 0 0);
+    transform: none;
   }
 }
-.hero-in {
+
+/* Título que se descubre palabra por palabra (<TextoRevelado>) */
+.palabra {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.08em;
+}
+.palabra > span {
+  display: inline-block;
+  transform: translate3d(0, 110%, 0) rotate(4deg);
+  transition:
+    transform 900ms var(--salida),
+    opacity 700ms var(--salida);
   opacity: 0;
-  animation: heroIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition-delay: var(--retardo, 0ms);
+}
+[data-ver="si"] .palabra > span {
+  transform: none;
+  opacity: 1;
 }
 
-/* ===== Texto con degradado cálido (atardecer) ===== */
-.texto-fuego {
-  background: linear-gradient(
-    180deg,
-    #ffe9c7 0%,
-    #f3c277 40%,
-    #e07b39 75%,
-    #b85c2a 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 14px rgba(224, 123, 57, 0.35));
-}
+/* ---- B) Efectos continuos ligados al scroll ---- */
 
-/* ===== Polvo / partículas flotando en el hero ===== */
-.polvo {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 5;
-}
-.polvo i {
-  position: absolute;
-  bottom: -10px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: rgba(243, 233, 216, 0.5);
-  box-shadow: 0 0 6px rgba(243, 194, 119, 0.6);
-  animation: subirPolvo linear infinite;
-}
-@keyframes subirPolvo {
-  0% {
-    transform: translateY(0) translateX(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  90% {
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(-100vh) translateX(var(--drift, 40px));
-    opacity: 0;
-  }
-}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Parallax vertical. `--par` = desplazamiento en % (mayor = más lejano). */
+    .scrub-par {
+      animation: scrub-par linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+      will-change: transform;
+    }
+    @keyframes scrub-par {
+      from { transform: translate3d(0, calc(var(--par, 8) * 1%), 0); }
+      to { transform: translate3d(0, calc(var(--par, 8) * -1%), 0); }
+    }
 
-/* ===== Cinta en movimiento (marquee) ===== */
-.marquee {
-  display: flex;
-  overflow: hidden;
-  user-select: none;
-  mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 8%,
-    #000 92%,
-    transparent
-  );
-}
-.marquee__track {
-  display: flex;
-  flex-shrink: 0;
-  gap: 2.5rem;
-  padding-right: 2.5rem;
-  animation: correr 28s linear infinite;
-}
-@keyframes correr {
-  to {
-    transform: translateX(-100%);
+    /* Acercamiento lento mientras la sección cruza la pantalla */
+    .scrub-zoom {
+      animation: scrub-zoom linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+      will-change: transform;
+    }
+    @keyframes scrub-zoom {
+      from { transform: scale(1.18); }
+      to { transform: scale(1); }
+    }
+
+    /* El hero se hunde y se desvanece al salir */
+    .scrub-hero {
+      animation: scrub-hero linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 100vh;
+      will-change: transform, opacity;
+    }
+    @keyframes scrub-hero {
+      from { transform: scale(1) translate3d(0, 0, 0); opacity: 1; }
+      to { transform: scale(1.14) translate3d(0, 6%, 0); opacity: 0.25; }
+    }
+
+    /* Barra de progreso de lectura de la página */
+    .scrub-progreso {
+      transform-origin: 0 50%;
+      animation: scrub-progreso linear both;
+      animation-timeline: scroll(root block);
+    }
+    @keyframes scrub-progreso {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    /* Línea vertical que se dibuja al bajar (pasos del proceso) */
+    .scrub-linea {
+      transform-origin: 50% 0;
+      animation: scrub-linea linear both;
+      animation-timeline: view();
+      animation-range: cover 10% cover 70%;
+    }
+    @keyframes scrub-linea {
+      from { transform: scaleY(0); }
+      to { transform: scaleY(1); }
+    }
   }
 }
 
-/* ===== Sección de cita con parallax ===== */
-.parallax {
-  background-attachment: fixed;
+/* Parallax de fondo para navegadores sin animation-timeline */
+.parallax-fondo {
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
+  background-attachment: fixed;
 }
+/* iOS no soporta bien background-attachment: fixed */
 @supports (-webkit-touch-callout: none) {
-  /* iOS no soporta bien background-attachment: fixed */
-  .parallax {
+  .parallax-fondo {
     background-attachment: scroll;
   }
 }
 
-/* ===== Líneas de luz decorativas debajo de títulos ===== */
-.subrayado-fuego {
-  position: relative;
-  display: inline-block;
+/* ---- Animaciones puntuales ---- */
+
+/* Zoom lento infinito (Ken Burns) para fotos de fondo */
+@keyframes ken-burns {
+  0% { transform: scale(1.06) translate3d(0, 0, 0); }
+  100% { transform: scale(1.2) translate3d(-1.5%, -1.5%, 0); }
 }
-.subrayado-fuego::after {
-  content: "";
-  position: absolute;
-  left: 12%;
-  right: 12%;
-  bottom: -0.35em;
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, var(--atardecer), transparent);
+.ken-burns {
+  animation: ken-burns 26s ease-in-out infinite alternate;
 }
 
+/* Entrada del hero, encadenada con `--retardo` */
+@keyframes hero-entrada {
+  from { opacity: 0; transform: translate3d(0, 2.5rem, 0); filter: blur(10px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+.hero-entrada {
+  opacity: 0;
+  animation: hero-entrada 1.1s var(--salida) var(--retardo, 0ms) both;
+}
+
+/* Entrada simple para contenido que aparece tras una interacción (por ejemplo
+   el mensaje de "solicitud enviada"), donde no hay scroll que lo dispare */
+@keyframes aparecer {
+  from { opacity: 0; transform: translate3d(0, 1rem, 0); }
+  to { opacity: 1; transform: none; }
+}
+.aparecer {
+  animation: aparecer var(--medio) var(--salida) both;
+}
+
+/* Latido suave para la flecha de "bajar" */
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+.flotar {
+  animation: flotar 2.4s ease-in-out infinite;
+}
+
+/* Pulso del anillo de un indicador */
+@keyframes pulso-anillo {
+  0% { box-shadow: 0 0 0 0 rgba(224, 123, 57, 0.5); }
+  100% { box-shadow: 0 0 0 14px rgba(224, 123, 57, 0); }
+}
+.pulso-anillo {
+  animation: pulso-anillo 2s var(--salida) infinite;
+}
+
+/* Giro para indicadores de carga */
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}
+.girar {
+  animation: girar 0.9s linear infinite;
+}
+
+/* ---- Respeto por quien no quiere movimiento ---- */
+
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
+  /* Deja todo visible y quieto, sin animaciones de entrada */
+  [data-anim],
+  [data-ver="si"] [data-anim] {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
   }
-  .aparecer,
-  .hero-in,
-  .ken-burns,
-  .polvo i,
-  .marquee__track {
+  .palabra > span {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  .hero-entrada {
+    opacity: 1;
     animation: none;
   }
-  .hero-in {
-    opacity: 1;
+  .ken-burns,
+  .flotar,
+  .pulso-anillo,
+  .girar,
+  .polvo i,
+  .cinta__via {
+    animation: none !important;
   }
-  html {
+  .deslizador {
     scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
   }
 }

@@ -10,7 +10,7 @@ export default function LoginPage() {
   );
 
   return (
-    <main className="min-h-[100svh] flex items-center justify-center px-5 bg-rancho">
+    <main className="min-h-[100svh] flex items-center justify-center px-5 fondo-rancho">
       <form
         action={action}
         className="w-full max-w-sm bg-[#1a1410]/80 border-2 border-cuero rounded-xl p-8 shadow-2xl"
@@ -44,7 +44,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={pending}
-          className="btn-rancho w-full justify-center mt-6 disabled:opacity-60"
+          className="btn btn--fuego w-full justify-center mt-6 disabled:opacity-60"
         >
           {pending ? "Entrando…" : "Entrar"}
         </button>

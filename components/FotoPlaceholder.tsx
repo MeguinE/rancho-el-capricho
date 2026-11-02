@@ -61,7 +61,7 @@ export default function FotoPlaceholder({
         <circle cx="7" cy="20" r="0.7" fill="currentColor" />
         <circle cx="17" cy="20" r="0.7" fill="currentColor" />
       </svg>
-      <p className="font-[family-name:var(--font-rustico)] text-crema/80 text-sm">
+      <p className="font-slab text-crema/80 text-sm">
         {etiqueta ?? "Tu foto aquí"}
       </p>
       <p className="text-crema/40 text-xs mt-1">/public/img</p>

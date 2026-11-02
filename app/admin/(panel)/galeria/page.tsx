@@ -39,7 +39,7 @@ export default async function GaleriaPage() {
       {/* Subir nueva */}
       <form
         action={agregarGaleriaAction}
-        className="card-rancho p-5 flex flex-wrap items-end gap-4"
+        className="tarjeta p-5 flex flex-wrap items-end gap-4"
       >
         <div>
           <label className="block text-xs uppercase tracking-wider text-crema/60 mb-1">
@@ -74,7 +74,7 @@ export default async function GaleriaPage() {
 
       {/* Mosaico actual */}
       {items.length === 0 ? (
-        <div className="card-rancho p-10 text-center text-crema/60">
+        <div className="tarjeta p-10 text-center text-crema/60">
           La galería está vacía. Sube tu primera foto arriba.
         </div>
       ) : (

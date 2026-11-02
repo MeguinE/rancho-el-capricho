@@ -60,14 +60,14 @@ export default async function ReservasPage() {
       )}
 
       {reservas.length === 0 ? (
-        <div className="card-rancho p-10 text-center text-crema/60">
+        <div className="tarjeta p-10 text-center text-crema/60">
           Aún no hay reservas. Cuando alguien envíe el formulario del sitio,
           aparecerá aquí.
         </div>
       ) : (
         <div className="space-y-4">
           {reservas.map((r) => (
-            <article key={r.id} className="card-rancho p-5">
+            <article key={r.id} className="tarjeta p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h2 className="font-slab text-xl text-crema">{r.nombre}</h2>

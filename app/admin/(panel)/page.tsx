@@ -35,7 +35,7 @@ export default async function AdminInicio() {
 
   if (!datos) {
     return (
-      <div className="card-rancho p-6">
+      <div className="tarjeta p-6">
         <h1 className="font-slab text-2xl text-crema mb-2">Casi listo</h1>
         <p className="text-crema/70">
           Falta configurar la variable{" "}
@@ -68,7 +68,7 @@ export default async function AdminInicio() {
           <Link
             key={c.t}
             href={c.href}
-            className="card-rancho p-6 block hover:no-underline"
+            className="tarjeta p-6 block hover:no-underline"
           >
             <div className="text-crema/60 text-sm uppercase tracking-wider">
               {c.t}
@@ -84,7 +84,7 @@ export default async function AdminInicio() {
       </div>
 
       {/* Logo */}
-      <div className="card-rancho p-6">
+      <div className="tarjeta p-6">
         <h2 className="font-slab text-xl text-crema mb-4">Logo del sitio</h2>
         <div className="flex flex-wrap items-center gap-6">
           <div className="w-20 h-20 rounded-full border border-cuero-claro/50 overflow-hidden flex items-center justify-center bg-[#0f0b08]/60 shrink-0">

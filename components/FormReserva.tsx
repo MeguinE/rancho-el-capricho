@@ -62,7 +62,7 @@ export default function FormReserva() {
     return (
       <div className="text-center bg-[#0f0b08]/60 border-2 border-cuero rounded-lg p-10 aparecer">
         <div className="text-5xl mb-4">🤠</div>
-        <h3 className="font-[family-name:var(--font-display)] text-2xl text-cuero-claro mb-2">
+        <h3 className="font-display text-2xl text-cuero-claro mb-2">
           ¡Solicitud recibida!
         </h3>
         <p className="text-crema/80">
@@ -71,7 +71,7 @@ export default function FormReserva() {
         </p>
         <button
           onClick={() => setEstado("idle")}
-          className="btn-rancho btn-fantasma mt-6"
+          className="btn btn--fantasma mt-6"
         >
           Enviar otra solicitud
         </button>
@@ -163,7 +163,7 @@ export default function FormReserva() {
         </p>
       )}
 
-      <button type="submit" className="btn-rancho w-full justify-center" disabled={estado === "enviando"}>
+      <button type="submit" className="btn btn--fuego w-full justify-center" disabled={estado === "enviando"}>
         {estado === "enviando" ? "Enviando..." : "Solicitar mi reserva"}
       </button>
     </form>

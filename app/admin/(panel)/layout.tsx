@@ -13,7 +13,7 @@ export default async function PanelLayout({
   }
 
   return (
-    <div className="min-h-[100svh] bg-rancho">
+    <div className="min-h-[100svh] fondo-rancho">
       <header className="sticky top-0 z-40 bg-[#1a1410]/90 backdrop-blur border-b border-cuero/40">
         <div className="mx-auto max-w-6xl px-5 h-16 flex items-center justify-between gap-4">
           <a
@@ -31,7 +31,7 @@ export default async function PanelLayout({
               Ver sitio ↗
             </a>
             <form action={logoutAction}>
-              <button className="btn-pill !text-xs">Salir</button>
+              <button className="btn btn--pastilla text-xs">Salir</button>
             </form>
           </div>
         </div>
