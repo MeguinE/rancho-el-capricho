@@ -1,26 +1,28 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getSupabaseAdmin, adminConfigurado } from "@/lib/supabaseAdmin";
-import {
-  actualizarLogoAction,
-  quitarLogoAction,
-} from "@/app/admin/acciones";
+import { actualizarLogoAction, quitarLogoAction } from "@/app/admin/acciones";
 import { BotonSubmit, BotonEliminar } from "@/components/admin/Botones";
+import AvisoFalta from "@/components/admin/AvisoFalta";
 
 export const dynamic = "force-dynamic";
 
 async function resumen() {
-  if (!adminConfigurado()) return null;
   const sb = getSupabaseAdmin();
+  const cuenta = (tabla: string) =>
+    sb.from(tabla).select("id", { count: "exact", head: true });
+
   const [reservas, nuevas, caballos, galeria, logo] = await Promise.all([
-    sb.from("reservas").select("id", { count: "exact", head: true }),
+    cuenta("reservas"),
     sb
       .from("reservas")
       .select("id", { count: "exact", head: true })
       .eq("estado", "nueva"),
-    sb.from("caballos").select("id", { count: "exact", head: true }),
-    sb.from("galeria").select("id", { count: "exact", head: true }),
+    cuenta("caballos"),
+    cuenta("galeria"),
     sb.from("config").select("valor").eq("clave", "logo_url").maybeSingle(),
   ]);
+
   return {
     reservas: reservas.count ?? 0,
     nuevas: nuevas.count ?? 0,
@@ -31,105 +33,126 @@ async function resumen() {
 }
 
 export default async function AdminInicio() {
-  const datos = await resumen();
-
-  if (!datos) {
-    return (
-      <div className="tarjeta p-6">
-        <h1 className="font-slab text-2xl text-crema mb-2">Casi listo</h1>
-        <p className="text-crema/70">
-          Falta configurar la variable{" "}
-          <code className="text-atardecer">SUPABASE_SERVICE_ROLE_KEY</code> en el
-          servidor (y en Vercel) para poder administrar los datos. Revisa el{" "}
-          <code className="text-atardecer">.env.local.example</code>.
-        </p>
-      </div>
-    );
+  if (!adminConfigurado()) {
+    return <AvisoFalta accion="administrar los datos del rancho" />;
   }
 
+  const datos = await resumen();
+
   const tarjetas = [
-    { t: "Reservas", n: datos.reservas, extra: `${datos.nuevas} nuevas`, href: "/admin/reservas" },
-    { t: "Caballos", n: datos.caballos, href: "/admin/caballos" },
-    { t: "Fotos en galería", n: datos.galeria, href: "/admin/galeria" },
+    {
+      titulo: "Reservas",
+      valor: datos.reservas,
+      extra: datos.nuevas > 0 ? `${datos.nuevas} sin contactar` : "Todo al día",
+      destacar: datos.nuevas > 0,
+      href: "/admin/reservas",
+    },
+    {
+      titulo: "Caballos",
+      valor: datos.caballos,
+      extra: "En el sitio",
+      href: "/admin/caballos",
+    },
+    {
+      titulo: "Fotos en galería",
+      valor: datos.galeria,
+      extra: "En el mosaico",
+      href: "/admin/galeria",
+    },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-9">
       <div>
-        <h1 className="font-slab font-bold text-3xl text-crema">Hola, vaquero 🤠</h1>
-        <p className="text-crema/60 mt-1">
-          Aquí administras tu rancho. Todo lo que cambies se actualiza en el sitio.
+        <h1 className="font-slab font-bold text-3xl text-crema">
+          Hola, vaquero 🤠
+        </h1>
+        <p className="text-crema/60 mt-1.5">
+          Aquí administras tu rancho. Todo lo que cambies se actualiza en el
+          sitio al momento.
         </p>
       </div>
 
-      {/* Tarjetas resumen */}
       <div className="grid sm:grid-cols-3 gap-5">
         {tarjetas.map((c) => (
           <Link
-            key={c.t}
+            key={c.titulo}
             href={c.href}
-            className="tarjeta p-6 block hover:no-underline"
+            className="grupo-tarjeta tarjeta tarjeta--foco p-6 block"
           >
-            <div className="text-crema/60 text-sm uppercase tracking-wider">
-              {c.t}
-            </div>
-            <div className="font-slab font-bold text-4xl text-atardecer mt-1">
-              {c.n}
-            </div>
-            {c.extra && (
-              <div className="text-crema/50 text-xs mt-1">{c.extra}</div>
-            )}
+            <p className="text-crema/55 text-xs uppercase tracking-[0.16em]">
+              {c.titulo}
+            </p>
+            <p className="font-slab font-bold text-4xl text-atardecer mt-1.5 tabular-nums">
+              {c.valor}
+            </p>
+            <p
+              className={`text-xs mt-1.5 ${
+                c.destacar ? "text-atardecer" : "text-crema/45"
+              }`}
+            >
+              {c.extra}
+            </p>
           </Link>
         ))}
       </div>
 
-      {/* Logo */}
-      <div className="tarjeta p-6">
-        <h2 className="font-slab text-xl text-crema mb-4">Logo del sitio</h2>
-        <div className="flex flex-wrap items-center gap-6">
-          <div className="w-20 h-20 rounded-full border border-cuero-claro/50 overflow-hidden flex items-center justify-center bg-[#0f0b08]/60 shrink-0">
+      <section className="tarjeta p-6">
+        <h2 className="font-slab font-semibold text-xl text-crema">
+          Logo del sitio
+        </h2>
+        <p className="text-crema/50 text-sm mt-1">
+          Si no pones logo, el sitio usa la herradura con el nombre del rancho.
+        </p>
+
+        <div className="flex flex-wrap items-end gap-6 mt-6">
+          <div className="relative w-24 h-24 shrink-0 rounded-xl border border-cuero-claro/45 overflow-hidden bg-carbon/60 grid place-items-center">
             {datos.logo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={datos.logo}
-                alt="Logo actual"
-                className="w-full h-full object-cover"
+                alt="Logo actual del sitio"
+                fill
+                sizes="96px"
+                className="object-contain p-2"
               />
             ) : (
-              <span className="text-atardecer text-2xl">★</span>
+              <span className="text-atardecer text-2xl" aria-hidden="true">
+                ★
+              </span>
             )}
           </div>
-          <div className="flex flex-wrap items-end gap-3">
-            <form action={actualizarLogoAction} className="flex items-end gap-3">
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-crema/60 mb-1">
-                  Subir logo (PNG/JPG)
-                </label>
-                <input
-                  name="imagen"
-                  type="file"
-                  accept="image/*"
-                  required
-                  className="text-sm text-crema/80 file:mr-3 file:rounded file:border-0 file:bg-cuero file:text-crema file:px-3 file:py-1.5 file:cursor-pointer"
-                />
-              </div>
-              <BotonSubmit className="bg-atardecer text-[#1a1410] hover:bg-cuero-claro">
-                Guardar
-              </BotonSubmit>
+
+          <form
+            action={actualizarLogoAction}
+            className="flex flex-wrap items-end gap-3"
+          >
+            <div>
+              <label htmlFor="logo" className="etiqueta-campo text-[0.68rem]">
+                Subir logo (PNG o JPG)
+              </label>
+              <input
+                id="logo"
+                name="imagen"
+                type="file"
+                accept="image/*"
+                required
+                className="campo-archivo"
+              />
+            </div>
+            <BotonSubmit className="bg-atardecer text-madera hover:bg-cuero-claro">
+              Guardar
+            </BotonSubmit>
+          </form>
+
+          {datos.logo && (
+            <form action={quitarLogoAction}>
+              <BotonEliminar mensaje="¿Quitar el logo y volver a la estrella por defecto?">
+                Quitar logo
+              </BotonEliminar>
             </form>
-            {datos.logo && (
-              <form action={quitarLogoAction}>
-                <BotonEliminar mensaje="¿Quitar el logo y volver a la estrella por defecto?">
-                  Quitar
-                </BotonEliminar>
-              </form>
-            )}
-          </div>
+          )}
         </div>
-        <p className="text-crema/40 text-xs mt-3">
-          Si no pones logo, se usa la herradura/estrella por defecto.
-        </p>
-      </div>
+      </section>
     </div>
   );
 }

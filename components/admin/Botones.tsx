@@ -2,7 +2,12 @@
 
 import { useFormStatus } from "react-dom";
 
-/* Botón de envío que se deshabilita y muestra "..." mientras procesa. */
+/**
+ * Botón de envío que se bloquea mientras la Server Action está en marcha.
+ *
+ * `useFormStatus` lee el estado del <form> que lo contiene, así que el botón
+ * no necesita que le pasen nada: basta con que esté dentro del formulario.
+ */
 export function BotonSubmit({
   children,
   className = "",
@@ -13,18 +18,25 @@ export function BotonSubmit({
   pendingText?: string;
 }) {
   const { pending } = useFormStatus();
+
   return (
     <button
       type="submit"
       disabled={pending}
-      className={`inline-flex items-center justify-center gap-2 rounded-md font-semibold uppercase tracking-wide text-sm px-4 py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-md font-semibold uppercase tracking-[0.08em] text-sm px-4 py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     >
       {pending ? pendingText : children}
     </button>
   );
 }
 
-/* Botón de borrado que pide confirmación antes de enviar el formulario. */
+/**
+ * Botón de borrado que pide confirmación antes de enviar.
+ *
+ * Usa `confirm()` del navegador a propósito: para una acción irreversible en
+ * un panel interno, una ventana que no se puede ignorar vale más que un diseño
+ * bonito, y no añade estado ni dependencias.
+ */
 export function BotonEliminar({
   children = "Eliminar",
   mensaje = "¿Seguro que quieres eliminar esto? No se puede deshacer.",
@@ -33,6 +45,7 @@ export function BotonEliminar({
   mensaje?: string;
 }) {
   const { pending } = useFormStatus();
+
   return (
     <button
       type="submit"
@@ -40,7 +53,7 @@ export function BotonEliminar({
       onClick={(e) => {
         if (!confirm(mensaje)) e.preventDefault();
       }}
-      className="inline-flex items-center gap-1.5 rounded-md border border-red-500/40 text-red-300 hover:bg-red-500/15 text-sm px-3 py-1.5 transition-colors disabled:opacity-50"
+      className="inline-flex items-center gap-1.5 rounded-md border border-sangre text-[#ffb3a3] hover:bg-sangre/30 text-sm px-3 py-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {pending ? "…" : children}
     </button>

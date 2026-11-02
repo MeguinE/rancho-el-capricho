@@ -597,6 +597,36 @@
     box-shadow: 0 0 0 3px rgba(212, 96, 79, 0.16);
   }
 
+  /* Variante compacta, para formularios densos como los del panel */
+  .campo--compacto {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.88rem;
+    border-radius: 0.4rem;
+  }
+
+  /* Selector de archivo con el botón del color del rancho */
+  .campo-archivo {
+    width: 100%;
+    font-size: 0.82rem;
+    color: rgba(243, 233, 216, 0.75);
+  }
+  .campo-archivo::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.45rem 0.9rem;
+    border: none;
+    border-radius: 0.35rem;
+    background: var(--cuero);
+    color: var(--crema);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color var(--rapido) var(--suave);
+  }
+  .campo-archivo::file-selector-button:hover {
+    background: var(--cuero-claro);
+    color: var(--madera);
+  }
+
   .etiqueta-campo {
     display: block;
     font-size: 0.74rem;

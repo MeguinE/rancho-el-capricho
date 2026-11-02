@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { haySesion } from "@/lib/auth";
 import { logoutAction } from "@/app/admin/acciones";
 import NavAdmin from "@/components/admin/NavAdmin";
+
+export const metadata: Metadata = {
+  title: "Panel",
+  robots: { index: false, follow: false },
+};
 
 export default async function PanelLayout({
   children,
@@ -14,31 +21,38 @@ export default async function PanelLayout({
 
   return (
     <div className="min-h-[100svh] fondo-rancho">
-      <header className="sticky top-0 z-40 bg-[#1a1410]/90 backdrop-blur border-b border-cuero/40">
+      <header className="sticky top-0 z-40 bg-madera/92 backdrop-blur-xl border-b border-cuero/40">
         <div className="mx-auto max-w-6xl px-5 h-16 flex items-center justify-between gap-4">
-          <a
+          <Link
             href="/admin"
-            className="font-slab font-bold uppercase tracking-[0.08em] text-crema text-lg flex items-center gap-2"
+            className="font-slab font-bold uppercase tracking-[0.07em] text-crema text-lg flex items-center gap-2.5"
           >
-            <span className="text-atardecer">★</span> Rancho · Admin
-          </a>
+            <span className="text-atardecer" aria-hidden="true">
+              ★
+            </span>
+            Rancho · Admin
+          </Link>
+
           <div className="flex items-center gap-3">
-            <a
+            <Link
               href="/"
               target="_blank"
-              className="text-crema/60 hover:text-atardecer text-sm hidden sm:inline"
+              className="text-crema/55 hover:text-atardecer text-sm transition-colors hidden sm:inline"
             >
               Ver sitio ↗
-            </a>
+            </Link>
             <form action={logoutAction}>
-              <button className="btn btn--pastilla text-xs">Salir</button>
+              <button type="submit" className="btn btn--pastilla text-xs">
+                Salir
+              </button>
             </form>
           </div>
         </div>
+
         <NavAdmin />
       </header>
 
-      <main className="mx-auto max-w-6xl px-5 py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-5 py-9">{children}</main>
     </div>
   );
 }

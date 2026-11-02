@@ -1,6 +1,9 @@
+import Image from "next/image";
 import { getSupabaseAdmin, adminConfigurado } from "@/lib/supabaseAdmin";
 import { guardarCaballoAction } from "@/app/admin/acciones";
 import { BotonSubmit } from "@/components/admin/Botones";
+import CampoAdmin from "@/components/admin/CampoAdmin";
+import AvisoFalta from "@/components/admin/AvisoFalta";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +18,7 @@ type Caballo = {
 
 export default async function CaballosPage() {
   if (!adminConfigurado()) {
-    return (
-      <p className="text-crema/70">
-        Configura{" "}
-        <code className="text-atardecer">SUPABASE_SERVICE_ROLE_KEY</code> para
-        editar los caballos.
-      </p>
-    );
+    return <AvisoFalta accion="editar los caballos" />;
   }
 
   const sb = getSupabaseAdmin();
@@ -32,103 +29,100 @@ export default async function CaballosPage() {
   const caballos = (data as Caballo[]) ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div>
         <h1 className="font-slab font-bold text-3xl text-crema">Caballos</h1>
-        <p className="text-crema/60 mt-1">
+        <p className="text-crema/60 mt-1.5">
           Edita el nombre, los datos y la foto de cada caballo. Al subir una
-          foto nueva, la anterior se reemplaza.
+          foto nueva, la anterior se borra del almacenamiento.
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {caballos.map((c) => (
-          <form
-            key={c.id}
-            action={guardarCaballoAction}
-            className="tarjeta p-5 flex gap-5"
-          >
-            <input type="hidden" name="id" value={c.id} />
-            <input type="hidden" name="img_actual" value={c.img_url ?? ""} />
+      {caballos.length === 0 ? (
+        <div className="tarjeta p-10 text-center text-crema/60">
+          No hay caballos todavía. Ejecuta{" "}
+          <code className="text-atardecer">supabase/schema.sql</code> para
+          cargar los iniciales.
+        </div>
+      ) : (
+        <div className="grid lg:grid-cols-2 gap-6">
+          {caballos.map((c) => (
+            <form
+              key={c.id}
+              action={guardarCaballoAction}
+              className="tarjeta p-5 flex gap-5"
+            >
+              <input type="hidden" name="id" value={c.id} />
+              <input type="hidden" name="img_actual" value={c.img_url ?? ""} />
 
-            {/* Foto */}
-            <div className="shrink-0 w-28">
-              <div className="aspect-[3/4] rounded-lg overflow-hidden border border-cuero/40 bg-[#0f0b08]/60 flex items-center justify-center">
-                {c.img_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={c.img_url}
-                    alt={c.nombre}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-cuero-claro text-2xl">🐴</span>
-                )}
-              </div>
-              <label className="block text-[11px] uppercase tracking-wider text-crema/50 mt-2 mb-1">
-                Cambiar foto
-              </label>
-              <input
-                name="imagen"
-                type="file"
-                accept="image/*"
-                className="w-full text-xs text-crema/70 file:mr-2 file:rounded file:border-0 file:bg-cuero file:text-crema file:px-2 file:py-1 file:cursor-pointer"
-              />
-            </div>
+              <div className="shrink-0 w-28">
+                <div className="relative aspect-[3/4] rounded-lg overflow-hidden border border-cuero/40 bg-carbon/60 grid place-items-center">
+                  {c.img_url ? (
+                    <Image
+                      src={c.img_url}
+                      alt={c.nombre}
+                      fill
+                      sizes="112px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="text-cuero-claro text-2xl" aria-hidden="true">
+                      🐴
+                    </span>
+                  )}
+                </div>
 
-            {/* Datos */}
-            <div className="flex-1 space-y-3">
-              <Campo nombre="nombre" etiqueta="Nombre" valor={c.nombre} />
-              <div className="grid grid-cols-2 gap-3">
-                <Campo nombre="raza" etiqueta="Raza" valor={c.raza ?? ""} />
-                <Campo
-                  nombre="temperamento"
-                  etiqueta="Temperamento"
-                  valor={c.temperamento ?? ""}
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-crema/50 mb-1">
-                  Descripción
+                <label
+                  htmlFor={`imagen-${c.id}`}
+                  className="etiqueta-campo text-[0.64rem] mt-2.5"
+                >
+                  Cambiar foto
                 </label>
-                <textarea
-                  name="descripcion"
-                  rows={3}
-                  defaultValue={c.descripcion ?? ""}
-                  className="w-full bg-[#0f0b08]/70 border border-cuero/50 focus:border-atardecer outline-none rounded px-3 py-2 text-sm text-crema transition-colors"
+                <input
+                  id={`imagen-${c.id}`}
+                  name="imagen"
+                  type="file"
+                  accept="image/*"
+                  className="campo-archivo text-[0.7rem]"
                 />
               </div>
-              <BotonSubmit className="bg-atardecer text-[#1a1410] hover:bg-cuero-claro w-full">
-                Guardar cambios
-              </BotonSubmit>
-            </div>
-          </form>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-function Campo({
-  nombre,
-  etiqueta,
-  valor,
-}: {
-  nombre: string;
-  etiqueta: string;
-  valor: string;
-}) {
-  return (
-    <div>
-      <label className="block text-[11px] uppercase tracking-wider text-crema/50 mb-1">
-        {etiqueta}
-      </label>
-      <input
-        name={nombre}
-        type="text"
-        defaultValue={valor}
-        className="w-full bg-[#0f0b08]/70 border border-cuero/50 focus:border-atardecer outline-none rounded px-3 py-2 text-sm text-crema transition-colors"
-      />
+              <div className="flex-1 space-y-3 min-w-0">
+                <CampoAdmin
+                  nombre="nombre"
+                  etiqueta="Nombre"
+                  valor={c.nombre}
+                  sufijo={c.id}
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <CampoAdmin
+                    nombre="raza"
+                    etiqueta="Raza"
+                    valor={c.raza ?? ""}
+                    sufijo={c.id}
+                  />
+                  <CampoAdmin
+                    nombre="temperamento"
+                    etiqueta="Temperamento"
+                    valor={c.temperamento ?? ""}
+                    sufijo={c.id}
+                  />
+                </div>
+                <CampoAdmin
+                  nombre="descripcion"
+                  etiqueta="Descripción"
+                  valor={c.descripcion ?? ""}
+                  sufijo={c.id}
+                  filas={3}
+                />
+                <BotonSubmit className="bg-atardecer text-madera hover:bg-cuero-claro w-full">
+                  Guardar cambios
+                </BotonSubmit>
+              </div>
+            </form>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
