@@ -1,15 +1,17 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useCallback, useEffect, useMemo, useState } from "react";
 import Dialogo from "@/components/Dialogo";
 import Icono from "@/components/Icono";
 import CampoFormulario from "@/components/reserva/CampoFormulario";
 import {
   enviarReservaAction,
-  estadoInicial,
   iniciarSolicitudAction,
-  type InicioSolicitud,
 } from "@/app/acciones/reservas";
+import {
+  estadoInicial,
+  type InicioSolicitud,
+} from "@/lib/reservas/estado";
 import {
   CAMPO_TRAMPA,
   datosVacios,
@@ -69,6 +71,7 @@ function Formulario({ onCerrar }: { onCerrar: () => void }) {
   const [datos, setDatos] = useState<DatosReserva>(datosVacios);
   const [errores, setErrores] = useState<Errores>({});
   const [inicio, setInicio] = useState<InicioSolicitud | null>(null);
+  const [falloAlPreparar, setFalloAlPreparar] = useState(false);
   const [respuesta, setRespuesta] = useState<number | null>(null);
 
   const [estado, enviar, pendiente] = useActionState(
@@ -81,19 +84,24 @@ function Formulario({ onCerrar }: { onCerrar: () => void }) {
 
   // Token y pregunta de verificación. El token lleva firmado el momento en que
   // se emitió, y de ahí sale el tiempo mínimo de relleno que exige el servidor.
-  useEffect(() => {
-    let vigente = true;
-    iniciarSolicitudAction()
-      .then((r) => {
-        if (vigente) setInicio(r);
-      })
-      .catch(() => {
-        /* Si falla, al enviar se avisa con un mensaje claro. */
+  const preparar = useCallback(() => {
+    setFalloAlPreparar(false);
+    setInicio(null);
+
+    return iniciarSolicitudAction()
+      .then(setInicio)
+      .catch((e) => {
+        // Si esto falla sin avisar, el paso de confirmación se queda cargando
+        // para siempre y no hay forma de enviar. Mejor decirlo y ofrecer
+        // reintentar.
+        console.error("[reservas] no se pudo preparar la solicitud:", e);
+        setFalloAlPreparar(true);
       });
-    return () => {
-      vigente = false;
-    };
   }, []);
+
+  useEffect(() => {
+    void preparar();
+  }, [preparar]);
 
   // Si el servidor devuelve errores de campo, llevamos al visitante al paso
   // donde están en vez de dejarlo mirando un mensaje sin contexto.
@@ -341,6 +349,8 @@ function Formulario({ onCerrar }: { onCerrar: () => void }) {
           <Resumen datos={datos} />
           <Verificacion
             inicio={inicio}
+            fallo={falloAlPreparar}
+            onReintentar={preparar}
             respuesta={respuesta}
             onResponder={setRespuesta}
           />
@@ -572,13 +582,45 @@ function Resumen({ datos }: { datos: DatosReserva }) {
  */
 function Verificacion({
   inicio,
+  fallo,
+  onReintentar,
   respuesta,
   onResponder,
 }: {
   inicio: InicioSolicitud | null;
+  fallo: boolean;
+  onReintentar: () => void;
   respuesta: number | null;
   onResponder: (i: number) => void;
 }) {
+  if (fallo) {
+    return (
+      <div className="mt-6 rounded-xl border border-sangre bg-sangre/20 p-5">
+        <p className="text-[#ffb3a3] text-sm leading-relaxed" role="alert">
+          No pudimos preparar la verificación. Reintenta; si sigue igual,
+          escríbenos por WhatsApp y lo vemos al momento.
+        </p>
+        <div className="flex flex-wrap gap-3 mt-4">
+          <button
+            type="button"
+            onClick={onReintentar}
+            className="btn btn--fantasma text-xs px-5 py-2.5"
+          >
+            Reintentar
+          </button>
+          <a
+            href={`https://wa.me/${contacto.whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn--fantasma text-xs px-5 py-2.5"
+          >
+            Ir a WhatsApp
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   if (!inicio) {
     return (
       <p className="mt-6 text-crema/50 text-sm flex items-center gap-2">

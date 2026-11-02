@@ -1,6 +1,7 @@
 import "server-only";
 import crypto from "node:crypto";
 import { CAMPO_TRAMPA } from "@/lib/reservas/validacion";
+import type { PreguntaPublica } from "@/lib/reservas/estado";
 
 /*
   Defensas del formulario de reserva.
@@ -78,11 +79,6 @@ const PREGUNTAS = [
     correcta: 1,
   },
 ] as const;
-
-export type PreguntaPublica = {
-  texto: string;
-  opciones: readonly string[];
-};
 
 export function elegirPregunta(): { indice: number; publica: PreguntaPublica } {
   const indice = crypto.randomInt(PREGUNTAS.length);

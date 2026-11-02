@@ -11,7 +11,6 @@ import {
   LIMITE_POR_HORA,
   mensajeDeRechazo,
   revisarEnvio,
-  type PreguntaPublica,
 } from "@/lib/reservas/antispam";
 import {
   hayErrores,
@@ -20,6 +19,10 @@ import {
   type DatosReserva,
   type Errores,
 } from "@/lib/reservas/validacion";
+import type {
+  EstadoReserva,
+  InicioSolicitud,
+} from "@/lib/reservas/estado";
 
 /*
   Alta de reservas.
@@ -29,22 +32,12 @@ import {
   puerta: la tabla `reservas` ya no acepta escrituras anónimas (ver
   supabase/schema.sql), así que la única vía de entrada es esta acción, que
   valida, revisa las defensas antispam y limita el ritmo de envíos.
+
+  ⚠️ Este archivo solo puede exportar funciones async. Los tipos y el estado
+  inicial viven en lib/reservas/estado.ts: Next convierte cada export de un
+  archivo "use server" en una referencia invocable desde el cliente, y exportar
+  aquí un objeto hace que el módulo entero falle al cargarse.
 */
-
-export type EstadoReserva =
-  | { fase: "inicial" }
-  | { fase: "ok"; demo: boolean }
-  | { fase: "error"; mensaje: string; errores: Errores };
-
-export const estadoInicial: EstadoReserva = { fase: "inicial" };
-
-export type InicioSolicitud = {
-  /** Token firmado que acompaña al envío. Vacío en modo demostración. */
-  token: string;
-  pregunta: PreguntaPublica;
-  /** true cuando Supabase no está configurado y no se guarda nada. */
-  demo: boolean;
-};
 
 /**
  * Prepara una solicitud: emite el token y elige la pregunta de verificación.

@@ -82,6 +82,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
+      // Le dice a Next que el scroll suave es nuestro, para que no lo aplique
+      // también a los cambios de ruta.
+      data-scroll-behavior="smooth"
       className={`${rye.variable} ${oswald.variable} ${zillaSlab.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col fondo-rancho grano">
