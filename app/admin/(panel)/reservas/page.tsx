@@ -16,6 +16,8 @@ type Reserva = {
   tipo_evento: string | null;
   fecha_evento: string | null;
   num_caballos: number | null;
+  lugar: string | null;
+  invitados: number | null;
   mensaje: string | null;
   estado: string;
 };
@@ -103,6 +105,11 @@ export default async function ReservasPage() {
                   valor={
                     [r.telefono, r.email].filter(Boolean).join(" · ") || null
                   }
+                />
+                <Dato etiqueta="Lugar" valor={r.lugar} />
+                <Dato
+                  etiqueta="Invitados"
+                  valor={r.invitados?.toString()}
                 />
               </div>
 

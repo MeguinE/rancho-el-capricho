@@ -21,16 +21,39 @@ create table if not exists public.reservas (
   estado        text not null default 'nueva'  -- nueva | contactada | cerrada
 );
 
+-- Campos añadidos después (el formulario ahora pregunta lugar e invitados, y
+-- guardamos una huella de la IP para limitar envíos). Se añaden por separado
+-- para que el script siga funcionando sobre una base de datos ya creada.
+alter table public.reservas add column if not exists lugar     text;
+alter table public.reservas add column if not exists invitados int;
+alter table public.reservas add column if not exists ip_hash   text;
+
+-- Índices para las dos consultas que hace el formulario antes de insertar
+-- (cuántos envíos lleva esta IP en la última hora, y si es un reenvío).
+create index if not exists reservas_ip_hash_creado_idx
+  on public.reservas (ip_hash, creado_en desc);
+create index if not exists reservas_telefono_fecha_idx
+  on public.reservas (telefono, fecha_evento);
+create index if not exists reservas_creado_en_idx
+  on public.reservas (creado_en desc);
+
 alter table public.reservas enable row level security;
 
--- Cualquiera puede ENVIAR una reserva (insertar)...
+-- ⚠️ CAMBIO IMPORTANTE respecto a la primera versión del esquema
+--
+-- Antes cualquiera podía insertar en `reservas` con la clave pública. Eso
+-- bastaba para que un script (o cualquiera con la consola del navegador
+-- abierta) llenara la tabla de solicitudes falsas.
+--
+-- Ahora NADIE escribe con la clave pública: la solicitud la guarda el servidor
+-- con la clave service_role desde app/acciones/reservas.ts, que es donde se
+-- valida, se revisan las defensas antispam y se limita el ritmo de envíos.
+--
+-- Si ya habías ejecutado el esquema anterior, esta línea quita el permiso viejo.
 drop policy if exists "reservas_insert_publico" on public.reservas;
-create policy "reservas_insert_publico"
-  on public.reservas for insert
-  to anon, authenticated
-  with check (true);
--- ...pero NADIE puede leerlas con la clave pública.
--- El panel de admin las lee con la clave service_role (que salta RLS).
+
+-- Sin ninguna política, con RLS activo la clave pública no puede ni leer ni
+-- escribir esta tabla. La clave service_role salta RLS y es la que usa el panel.
 
 -- ---------- CABALLOS ----------
 create table if not exists public.caballos (

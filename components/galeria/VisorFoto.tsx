@@ -94,7 +94,7 @@ function BotonPaso({
       type="button"
       onClick={onClick}
       aria-label={izquierda ? "Foto anterior" : "Foto siguiente"}
-      className={`cerrar absolute top-1/2 -translate-y-1/2 hover:rotate-0 ${
+      className={`cerrar cerrar--recto absolute top-1/2 -translate-y-1/2 ${
         izquierda ? "left-3" : "right-3"
       }`}
     >

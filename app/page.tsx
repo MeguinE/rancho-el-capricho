@@ -1,6 +1,4 @@
 import Navbar from "@/components/Navbar";
-import FormReserva from "@/components/FormReserva";
-import Revelar from "@/components/anim/Revelar";
 import Marquee from "@/components/Marquee";
 import Hero from "@/components/secciones/Hero";
 import Historia from "@/components/secciones/Historia";
@@ -10,6 +8,7 @@ import Servicios from "@/components/secciones/Servicios";
 import Pasos from "@/components/secciones/Pasos";
 import Galeria from "@/components/secciones/Galeria";
 import Testimonios from "@/components/secciones/Testimonios";
+import Reservar from "@/components/secciones/Reservar";
 import { contacto, cintaItems } from "@/lib/data";
 import {
   obtenerCaballos,
@@ -42,50 +41,7 @@ export default async function Home() {
         <Galeria fotos={galeria} />
         <Testimonios />
 
-        {/* ====================== RESERVAR ====================== */}
-        <section
-          id="reservar"
-          className="py-20 sm:py-28 px-5 bg-noche/55 border-y border-cuero/25"
-        >
-          <div className="mx-auto max-w-3xl">
-            <Revelar anim="subir" className="text-center mb-10">
-              <span className="antetitulo mb-3">¿Listo para tu evento?</span>
-              <h2 className="titulo-display text-4xl sm:text-5xl mt-3">
-                Reserva tus Caballos
-              </h2>
-              <p className="text-crema/70 mt-3">
-                Déjanos tus datos y te contactamos para crear una experiencia a
-                tu medida.
-              </p>
-            </Revelar>
-
-            <Revelar anim="subir" retardo={120}>
-              <div className="panel p-6 sm:p-9">
-                <FormReserva />
-              </div>
-
-              <div className="text-center mt-8 text-crema/70">
-                <p>O escríbenos directo:</p>
-                <div className="flex flex-wrap gap-4 justify-center mt-3">
-                  <a
-                    href={`https://wa.me/${contacto.whatsapp}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn--fantasma"
-                  >
-                    WhatsApp
-                  </a>
-                  <a
-                    href={`tel:${contacto.telefono}`}
-                    className="btn btn--fantasma"
-                  >
-                    {contacto.telefono}
-                  </a>
-                </div>
-              </div>
-            </Revelar>
-          </div>
-        </section>
+        <Reservar />
       </main>
 
       {/* ====================== FOOTER ====================== */}

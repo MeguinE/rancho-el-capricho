@@ -834,10 +834,15 @@
       color var(--rapido) var(--suave),
       transform var(--rapido) var(--rebote);
   }
-  .cerrar:hover {
+  .cerrar:hover:not(:disabled) {
     background: var(--atardecer);
     color: var(--madera);
     transform: rotate(90deg);
+  }
+  /* Misma caja redonda, pero sin el giro: para flechas y sumar/restar, donde
+     girar el icono no significa nada. */
+  .cerrar--recto:hover:not(:disabled) {
+    transform: none;
   }
 
   /* ===== Polvo dorado flotante ===== */
