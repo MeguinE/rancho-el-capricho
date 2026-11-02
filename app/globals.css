@@ -296,26 +296,6 @@
     opacity: 0.8;
   }
 
-  /* Línea fina con una estrella al centro */
-  .divisor-estrella {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: var(--atardecer);
-  }
-  .divisor-estrella::before,
-  .divisor-estrella::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(193, 135, 59, 0.55),
-      transparent
-    );
-  }
-
   /* ===== Botones ===== */
 
   .btn {
@@ -727,25 +707,6 @@
     to {
       transform: translateX(-100%);
     }
-  }
-
-  /* ===== Carrusel con ajuste de desplazamiento ===== */
-
-  .deslizador {
-    display: flex;
-    gap: 1.5rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .deslizador::-webkit-scrollbar {
-    display: none;
-  }
-  .deslizador > * {
-    scroll-snap-align: center;
-    flex: 0 0 auto;
   }
 
   /* ===== Ventana modal (<dialog> nativo) ===== */
@@ -1169,20 +1130,6 @@
   transform-origin: 0 50%;
 }
 
-/* Parallax de fondo para navegadores sin animation-timeline */
-.parallax-fondo {
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-/* iOS no soporta bien background-attachment: fixed */
-@supports (-webkit-touch-callout: none) {
-  .parallax-fondo {
-    background-attachment: scroll;
-  }
-}
-
 /* ---- Animaciones puntuales ---- */
 
 /* Zoom lento infinito (Ken Burns) para fotos de fondo */
@@ -1223,21 +1170,29 @@
   animation: flotar 2.4s ease-in-out infinite;
 }
 
-/* Pulso del anillo de un indicador */
-@keyframes pulso-anillo {
-  0% { box-shadow: 0 0 0 0 rgba(224, 123, 57, 0.5); }
-  100% { box-shadow: 0 0 0 14px rgba(224, 123, 57, 0); }
-}
-.pulso-anillo {
-  animation: pulso-anillo 2s var(--salida) infinite;
-}
-
 /* Giro para indicadores de carga */
 @keyframes girar {
   to { transform: rotate(360deg); }
 }
 .girar {
   animation: girar 0.9s linear infinite;
+}
+
+/* ---- Sin JavaScript ----
+   Las entradas al aparecer parten de opacidad cero y las enciende <Revelar>.
+   Si el navegador tiene el JavaScript desactivado eso dejaría media página en
+   blanco, así que en ese caso mostramos todo de golpe y sin animar. */
+@media (scripting: none) {
+  [data-anim],
+  .palabra > span,
+  .hero-entrada {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ---- Respeto por quien no quiere movimiento ---- */
@@ -1263,14 +1218,11 @@
   }
   .ken-burns,
   .flotar,
-  .pulso-anillo,
   .girar,
+  .hueso,
   .polvo i,
   .cinta__via {
     animation: none !important;
-  }
-  .deslizador {
-    scroll-behavior: auto;
   }
   *,
   *::before,
