@@ -245,6 +245,24 @@
     filter: drop-shadow(0 6px 18px rgba(224, 123, 57, 0.3));
   }
 
+  /* Variante de `.texto-fuego` para títulos que se revelan palabra por palabra.
+     El degradado se aplica a cada palabra en vez de al bloque entero: como es
+     vertical, el resultado se ve igual y evita que el recorte del degradado
+     pelee con el `transform` de la animación. */
+  .palabras-fuego .palabra > span {
+    background: linear-gradient(
+      180deg,
+      #fff3dd 0%,
+      #f3c277 38%,
+      #e07b39 74%,
+      #a9511f 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
   /* Texto hueco (solo contorno), para números grandes de fondo */
   .texto-hueco {
     color: transparent;
@@ -695,6 +713,110 @@
     flex: 0 0 auto;
   }
 
+  /* ===== Ventana modal (<dialog> nativo) ===== */
+
+  .dialogo {
+    margin: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--crema);
+    max-width: none;
+    max-height: none;
+    opacity: 0;
+    /* `allow-discrete` permite animar la salida antes de que el navegador
+       ponga display:none, sin temporizadores en JavaScript. */
+    transition:
+      opacity var(--medio) var(--salida),
+      transform var(--medio) var(--salida),
+      display var(--medio) allow-discrete,
+      overlay var(--medio) allow-discrete;
+  }
+  .dialogo[open] {
+    opacity: 1;
+  }
+
+  .dialogo--centro {
+    width: min(100% - 1.5rem, 44rem);
+    transform: translateY(1.5rem) scale(0.97);
+  }
+  .dialogo--centro[open] {
+    transform: none;
+  }
+
+  .dialogo--completo {
+    width: 100vw;
+    height: 100dvh;
+    transform: scale(1.015);
+  }
+  .dialogo--completo[open] {
+    transform: none;
+  }
+
+  /* Estado de partida de la animación de entrada */
+  @starting-style {
+    .dialogo[open] {
+      opacity: 0;
+    }
+    .dialogo--centro[open] {
+      transform: translateY(1.5rem) scale(0.97);
+    }
+    .dialogo--completo[open] {
+      transform: scale(1.015);
+    }
+  }
+
+  .dialogo::backdrop {
+    background: rgba(8, 5, 4, 0.74);
+    opacity: 0;
+    transition: opacity var(--medio) var(--salida);
+  }
+  .dialogo[open]::backdrop {
+    opacity: 1;
+    backdrop-filter: blur(7px) saturate(0.8);
+  }
+  @starting-style {
+    .dialogo[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  /* Panel interior: la caja visible dentro del diálogo */
+  .panel {
+    position: relative;
+    background: linear-gradient(
+      165deg,
+      rgba(36, 26, 19, 0.97),
+      rgba(12, 8, 6, 0.98)
+    );
+    border: 2px solid var(--cuero);
+    border-radius: 1rem;
+    box-shadow: var(--sombra-alta);
+  }
+
+  /* Botón redondo de cerrar */
+  .cerrar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 999px;
+    border: 1px solid rgba(193, 135, 59, 0.5);
+    background: rgba(12, 8, 6, 0.7);
+    color: var(--crema);
+    cursor: pointer;
+    transition:
+      background-color var(--rapido) var(--suave),
+      color var(--rapido) var(--suave),
+      transform var(--rapido) var(--rebote);
+  }
+  .cerrar:hover {
+    background: var(--atardecer);
+    color: var(--madera);
+    transform: rotate(90deg);
+  }
+
   /* ===== Polvo dorado flotante ===== */
 
   .polvo {
@@ -875,7 +997,6 @@
 
     /* Barra de progreso de lectura de la página */
     .scrub-progreso {
-      transform-origin: 0 50%;
       animation: scrub-progreso linear both;
       animation-timeline: scroll(root block);
     }
@@ -896,6 +1017,14 @@
       to { transform: scaleY(1); }
     }
   }
+}
+
+/* Estado de partida de la barra de progreso. Vive fuera del @supports para que
+   en los navegadores que no animan contra el scroll quede en cero y no se vea
+   una barra llena y falsa. */
+.scrub-progreso {
+  transform: scaleX(0);
+  transform-origin: 0 50%;
 }
 
 /* Parallax de fondo para navegadores sin animation-timeline */

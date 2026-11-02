@@ -25,6 +25,13 @@ export const fotos = {
   cita: demo("photo-1598974357801-cbca100e65d3", 1920),
 };
 
+// Cifras que se muestran en el hero y en la sección de historia
+export const logros = [
+  { valor: 10, etiqueta: "Años de experiencia" },
+  { valor: 15, etiqueta: "Caballos entrenados" },
+  { valor: 200, etiqueta: "Eventos realizados" },
+];
+
 // Frases de la cinta en movimiento
 export const cintaItems = [
   "Bodas de ensueño",

@@ -1,115 +1,96 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Icono from "@/components/Icono";
+import Dialogo from "@/components/Dialogo";
 
 const enlaces = [
-  { href: "#inicio", texto: "Inicio" },
   { href: "#historia", texto: "El Rancho" },
   { href: "#caballos", texto: "Caballos" },
   { href: "#servicios", texto: "Eventos" },
   { href: "#galeria", texto: "Galería" },
+  { href: "#testimonios", texto: "Opiniones" },
 ];
 
 export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
-  const [abierto, setAbierto] = useState(false);
-  const [solido, setSolido] = useState(false);
-  const [progreso, setProgreso] = useState(0);
-  const [activo, setActivo] = useState("#inicio");
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const [compacta, setCompacta] = useState(false);
+  const [activo, setActivo] = useState<string | null>(null);
 
-  // Fondo sólido + barra de progreso al hacer scroll
+  // Encoge la barra al despegarse del borde superior.
+  //
+  // El único dato que necesitamos del scroll es "¿pasamos de 60px?", así que
+  // agrupamos las lecturas en un requestAnimationFrame: por muchos eventos que
+  // dispare el navegador, medimos una vez por fotograma. La barra de progreso
+  // no está aquí: la dibuja el CSS con animation-timeline.
   useEffect(() => {
-    const onScroll = () => {
-      const top = window.scrollY;
-      setSolido(top > 40);
-      const alto = document.body.scrollHeight - window.innerHeight;
-      setProgreso(alto > 0 ? (top / alto) * 100 : 0);
+    let pendiente = false;
+
+    const alHacerScroll = () => {
+      if (pendiente) return;
+      pendiente = true;
+      requestAnimationFrame(() => {
+        setCompacta(window.scrollY > 60);
+        pendiente = false;
+      });
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    alHacerScroll();
+    window.addEventListener("scroll", alHacerScroll, { passive: true });
+    return () => window.removeEventListener("scroll", alHacerScroll);
   }, []);
 
-  // Scroll-spy: resalta la sección visible
+  // Resalta en el menú la sección que el visitante está mirando.
   useEffect(() => {
     const secciones = enlaces
       .map((e) => document.getElementById(e.href.slice(1)))
-      .filter(Boolean) as HTMLElement[];
+      .filter((el): el is HTMLElement => el !== null);
+
+    if (secciones.length === 0) return;
+
     const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActivo(`#${entry.target.id}`);
-        });
+      (entradas) => {
+        // Nos quedamos con la sección más visible, no con la última en entrar:
+        // si no, al bajar rápido se queda marcada la que acabamos de dejar.
+        const visible = entradas
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActivo(`#${visible.target.id}`);
       },
-      { rootMargin: "-45% 0px -50% 0px" }
+      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.5, 1] }
     );
+
     secciones.forEach((s) => obs.observe(s));
     return () => obs.disconnect();
   }, []);
 
-  // Bloquea el scroll del fondo cuando el menú móvil está abierto
-  useEffect(() => {
-    document.body.style.overflow = abierto ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [abierto]);
+  const altoLogo = compacta ? 56 : 84;
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        solido || abierto
-          ? "bg-[#1a1410]/90 backdrop-blur-md shadow-lg border-b border-cuero/40"
-          : "bg-gradient-to-b from-black/40 to-transparent"
+      data-compacta={compacta ? "si" : "no"}
+      className={`fixed top-0 inset-x-0 z-50 transition-[background-color,box-shadow,border-color] duration-500 ${
+        compacta
+          ? "bg-madera/92 backdrop-blur-xl border-b border-cuero/40 shadow-[0_10px_40px_rgba(0,0,0,0.45)]"
+          : "bg-gradient-to-b from-black/55 via-black/20 to-transparent border-b border-transparent"
       }`}
     >
-      <nav className="mx-auto max-w-7xl px-5 h-28 flex items-center justify-between">
-        {/* Logo */}
-        <a
-          href="#inicio"
-          className="group flex items-center gap-3"
-          onClick={() => setAbierto(false)}
-        >
-          {logoUrl ? (
-            // El logo ya incluye el nombre; lo mostramos completo sobre una
-            // placa clara para que su texto oscuro se lea en el navbar oscuro.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoUrl}
-              alt="Rancho el Capricho"
-              className="h-[88px] sm:h-[104px] w-auto object-contain group-hover:scale-105 transition-transform"
-            />
-          ) : (
-            <>
-              <span className="flex items-center justify-center w-10 h-10 rounded-full border border-cuero-claro/50 text-atardecer group-hover:border-atardecer transition-all">
-                <Icono
-                  name="herradura"
-                  className="w-5 h-5 group-hover:rotate-12 transition-transform"
-                />
-              </span>
-              <span className="leading-none">
-                <span className="block font-slab font-bold uppercase text-lg sm:text-xl tracking-[0.08em] text-crema group-hover:text-cuero-claro transition-colors">
-                  Rancho el Capricho
-                </span>
-                <span className="block text-[10px] uppercase tracking-[0.32em] text-crema/50 mt-0.5">
-                  Caballos & Eventos
-                </span>
-              </span>
-            </>
-          )}
-        </a>
+      <nav
+        aria-label="Navegación principal"
+        className={`mx-auto max-w-7xl px-5 flex items-center justify-between gap-6 transition-[height] duration-500 ease-[var(--ease-salida)] ${
+          compacta ? "h-20" : "h-28"
+        }`}
+      >
+        <Marca logoUrl={logoUrl} alto={altoLogo} />
 
-        {/* Enlaces escritorio */}
-        <ul className="hidden md:flex items-center gap-8">
+        <ul className="hidden lg:flex items-center gap-9">
           {enlaces.map((e) => (
             <li key={e.href}>
               <a
                 href={e.href}
-                className={`relative font-slab uppercase text-sm tracking-[0.12em] transition-colors after:absolute after:left-0 after:-bottom-1.5 after:h-[2px] after:bg-atardecer after:transition-all hover:text-atardecer ${
-                  activo === e.href
-                    ? "text-atardecer after:w-full"
-                    : "text-crema/85 after:w-0 hover:after:w-full"
-                }`}
+                className="enlace-nav"
+                aria-current={activo === e.href ? "true" : undefined}
               >
                 {e.texto}
               </a>
@@ -117,86 +98,170 @@ export default function Navbar({ logoUrl }: { logoUrl?: string | null }) {
           ))}
           <li>
             <a href="#reservar" className="btn btn--pastilla">
+              <Icono name="herradura" className="w-4 h-4" />
               Reservar
             </a>
           </li>
         </ul>
 
-        {/* Botón menú móvil (hamburguesa animada) */}
         <button
-          aria-label={abierto ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={abierto}
-          className="md:hidden relative w-9 h-9 flex flex-col items-center justify-center gap-1.5"
-          onClick={() => setAbierto((v) => !v)}
+          type="button"
+          aria-label="Abrir menú"
+          aria-expanded={menuAbierto}
+          onClick={() => setMenuAbierto(true)}
+          className="lg:hidden flex flex-col items-end justify-center gap-[7px] w-11 h-11 group"
         >
-          <span
-            className={`block h-0.5 w-7 bg-crema transition-all duration-300 ${
-              abierto ? "translate-y-2 rotate-45" : ""
-            }`}
-          />
-          <span
-            className={`block h-0.5 w-7 bg-crema transition-all duration-300 ${
-              abierto ? "opacity-0" : ""
-            }`}
-          />
-          <span
-            className={`block h-0.5 w-7 bg-crema transition-all duration-300 ${
-              abierto ? "-translate-y-2 -rotate-45" : ""
-            }`}
-          />
+          <span className="block h-[2px] w-8 bg-crema transition-all duration-300 group-hover:bg-atardecer" />
+          <span className="block h-[2px] w-5 bg-crema transition-all duration-300 group-hover:w-8 group-hover:bg-atardecer" />
+          <span className="block h-[2px] w-8 bg-crema transition-all duration-300 group-hover:bg-atardecer" />
         </button>
       </nav>
 
-      {/* Barra de progreso de lectura */}
+      {/* Progreso de lectura. La anchura la anima el CSS contra el scroll de la
+          página; sin soporte simplemente se queda en cero y no molesta. */}
       <div
-        className="h-[3px] bg-atardecer transition-[width] duration-150 ease-out"
-        style={{ width: `${progreso}%` }}
+        aria-hidden="true"
+        className="h-[3px] bg-gradient-to-r from-cuero via-atardecer to-dorado scrub-progreso"
       />
 
-      {/* Menú móvil a pantalla completa */}
+      <MenuMovil
+        abierto={menuAbierto}
+        onCerrar={() => setMenuAbierto(false)}
+        activo={activo}
+      />
+    </header>
+  );
+}
+
+/** Logo o, si no hay, herradura con el nombre del rancho. */
+function Marca({
+  logoUrl,
+  alto,
+}: {
+  logoUrl?: string | null;
+  alto: number;
+}) {
+  return (
+    <a
+      href="#inicio"
+      className="group flex items-center gap-3 shrink-0"
+      aria-label="Rancho el Capricho, ir al inicio"
+    >
+      {logoUrl ? (
+        <Image
+          src={logoUrl}
+          alt="Rancho el Capricho"
+          width={320}
+          height={160}
+          priority
+          sizes="320px"
+          style={{ height: alto, width: "auto" }}
+          className="object-contain transition-[height,transform] duration-500 ease-[var(--ease-salida)] group-hover:scale-[1.04]"
+        />
+      ) : (
+        <>
+          <span className="flex items-center justify-center w-11 h-11 rounded-full border border-cuero-claro/50 text-atardecer transition-colors duration-300 group-hover:border-atardecer">
+            <Icono
+              name="herradura"
+              className="w-5 h-5 transition-transform duration-500 group-hover:rotate-[14deg]"
+            />
+          </span>
+          <span className="leading-none">
+            <span className="block font-slab font-bold uppercase text-lg sm:text-xl tracking-[0.07em] text-crema transition-colors duration-300 group-hover:text-cuero-claro">
+              Rancho el Capricho
+            </span>
+            <span className="block text-[10px] uppercase tracking-[0.34em] text-crema/50 mt-1">
+              Caballos & Eventos
+            </span>
+          </span>
+        </>
+      )}
+    </a>
+  );
+}
+
+/** Menú de pantalla completa para móvil y tableta. */
+function MenuMovil({
+  abierto,
+  onCerrar,
+  activo,
+}: {
+  abierto: boolean;
+  onCerrar: () => void;
+  activo: string | null;
+}) {
+  // El <dialog> nativo atrapa el foco, así que el primer enlace debe recibirlo.
+  const primero = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (abierto) primero.current?.focus();
+  }, [abierto]);
+
+  return (
+    <Dialogo
+      abierto={abierto}
+      onCerrar={onCerrar}
+      titulo="Menú de navegación"
+      variante="completo"
+    >
       <div
-        className={`md:hidden fixed inset-0 top-[115px] bg-[#1a1410]/98 backdrop-blur-md transition-all duration-300 ${
-          abierto
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
-        }`}
+        data-ver={abierto ? "si" : "no"}
+        className="fondo-rancho h-full w-full flex flex-col px-6 py-7 overflow-y-auto"
       >
-        <ul className="flex flex-col items-center justify-center gap-7 h-full -mt-16">
+        <div className="flex items-center justify-between">
+          <span className="antetitulo antetitulo--izq">Navegación</span>
+          <button
+            type="button"
+            className="cerrar"
+            onClick={onCerrar}
+            aria-label="Cerrar menú"
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                fill="none"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <ul className="flex-1 flex flex-col justify-center gap-5">
           {enlaces.map((e, i) => (
             <li
               key={e.href}
-              style={{ transitionDelay: abierto ? `${i * 60 + 100}ms` : "0ms" }}
-              className={`transition-all duration-300 ${
-                abierto ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
+              data-anim="izq"
+              style={{ "--retardo": `${i * 70 + 90}ms` } as React.CSSProperties}
             >
               <a
+                ref={i === 0 ? primero : undefined}
                 href={e.href}
-                onClick={() => setAbierto(false)}
-                className={`font-slab font-semibold uppercase tracking-[0.1em] text-3xl ${
+                onClick={onCerrar}
+                className={`font-slab font-semibold uppercase tracking-[0.08em] text-[2rem] leading-tight transition-colors ${
                   activo === e.href ? "text-atardecer" : "text-crema"
                 }`}
               >
+                <span className="text-cuero-claro/50 text-base align-top mr-3">
+                  0{i + 1}
+                </span>
                 {e.texto}
               </a>
             </li>
           ))}
-          <li
-            style={{ transitionDelay: abierto ? "400ms" : "0ms" }}
-            className={`mt-4 transition-all duration-300 ${
-              abierto ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
-            <a
-              href="#reservar"
-              onClick={() => setAbierto(false)}
-              className="btn btn--pastilla text-sm px-7 py-3"
-            >
-              Reservar caballos
-            </a>
-          </li>
         </ul>
+
+        <a
+          href="#reservar"
+          onClick={onCerrar}
+          className="btn btn--fuego w-full"
+          data-anim="subir"
+          style={{ "--retardo": "440ms" } as React.CSSProperties}
+        >
+          Reservar caballos
+        </a>
       </div>
-    </header>
+    </Dialogo>
   );
 }
